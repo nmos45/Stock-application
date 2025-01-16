@@ -1,2 +1,2 @@
 # Stock-application
-Stock taking web application using Django framework
+Stock-taking web application using Django framework
