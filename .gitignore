@@ -4,3 +4,5 @@
 # database
 *.sqlite3
 
+# used to protect db credentials
+.env
