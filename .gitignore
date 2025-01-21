@@ -1,0 +1,8 @@
+# text backup files
+*bak 
+
+# database
+*.mysql
+
+# used to protect db credentials
+.env
