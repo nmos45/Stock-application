@@ -2,7 +2,7 @@
 *bak 
 
 # database
-*.sqlite3
+*.mysql
 
 # used to protect db credentials
 .env
