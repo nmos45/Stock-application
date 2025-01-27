@@ -54,7 +54,7 @@ class TimeFrameField(models.CharField):
         except ValueError:
             raise ValidationError('Must have an numeric date')
 
-        if num <0:
+        if num < 0:
             raise ValidationError("value must be greater than 0")
 
         timeframe = time[1].lower()
@@ -78,9 +78,15 @@ class TimeFrameField(models.CharField):
             return None
         
         return microseconds_to_date(value)
-        
+    
+    def string_to_microseconds(self,value):
+        """Coverts string representation to microsecond value"""
+        if not value:
+            raise ValidationError("Invalid input for conversion to microseconds.")
 
-
-
-
+        dates = value.split(", ")
+        total_microseconds = 0
+        for date in dates:
+            total_microseconds += self.get_prep_value(date)
+        return total_microseconds
 
