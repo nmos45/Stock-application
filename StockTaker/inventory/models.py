@@ -26,7 +26,7 @@ class Food(models.Model):
 
 class Category(models.Model):
     """Model representing food categories"""
-    category_type = CharField(max_length=200,unique=True,help_text='Enter the category type e.g (keto,vegan)')
+    category_type = CharField(max_length=200,unique=True,help_text='Enter the category type e.g (keto,vegan)',db_index=True)
     description = TextField(help_text='Enter summary on category type: e.g(vegan: health benefits, environmental impact)')
 
     def __str__(self):
@@ -45,10 +45,10 @@ class Category(models.Model):
                 violation_error_message="Category already exsists (case insensitive match)"
                       ),
         ]
-
+       
 class StockFood(models.Model):
     """Model representing a StockInstance Food object"""
-    stock_instance = ForeignKey('StockInstance',on_delete=models.CASCADE)
+    stock_instance = ForeignKey('StockInstance',on_delete=models.CASCADE,db_index=True)
     food = ForeignKey(Food,on_delete=models.CASCADE)
     quantity = PositiveSmallIntegerField(default=1)
     added_date = DateTimeField(auto_now_add=True) #remember to exclude in forms
@@ -67,7 +67,7 @@ class StockFood(models.Model):
 
 class StockInstance(models.Model):
     """Model representing a specific users stock"""
-    user = ForeignKey(User,on_delete=models.CASCADE)
+    user = ForeignKey(User,on_delete=models.CASCADE,db_index=True)
     name = CharField(max_length=200,default= str(User.username) + 'stockroom')
     
     @property
@@ -79,5 +79,4 @@ class StockInstance(models.Model):
             for food in query:
                 num += food.quantity
         return num
-    
-    
+        
