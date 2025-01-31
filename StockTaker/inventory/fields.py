@@ -1,6 +1,8 @@
 from django.db import models
 from datetime import timedelta
 from django.core.exceptions import ValidationError
+import datetime
+from dateutil.relativedelta import relativedelta
 
 def pluralize(word,number):
     """String method version of django pluralize template feature"""
@@ -8,85 +10,99 @@ def pluralize(word,number):
         return word
     return word +"s"
 
-def microseconds_to_date(m_seconds):
-    """string representation of a microsecond value in years, months, weeks, days"""
-    years = int(m_seconds // 3.154e13)
-    remaining_ms = m_seconds % 3.154e13
-
-    months = int((remaining_ms) // 2.628e12)
-    remaining_ms %= 2.628e12
     
-    weeks = int((remaining_ms) // 6.048e11)
-    remaining_ms %= 6.048e11
+def days_to_string(days):
+    """Convert total days back into a readable time format"""
+    reference_date = datetime.datetime(2017, 1, 1)  # Same reference date used in get_prep_value
+    target_date = reference_date + timedelta(days=days)  # Calculate target date
 
-    days = int((remaining_ms) // 8.64e10)
+    diff = relativedelta(target_date, reference_date)
 
-    return f"{years} {pluralize('Year',years)}, {months} {pluralize('Month',months)}, {weeks} {pluralize('Week',weeks)}, {days} {pluralize('Day',days)}"
+    years = diff.years
+    months = diff.months
+    weeks = (diff.days // 7)
+    days = diff.days % 7  
+
+    result = []
+    if years > 0:
+        result.append(f"{years} {pluralize('year', years)}")
+    if months > 0:
+        result.append(f"{months} {pluralize('month', months)}")
+    if weeks > 0:
+        result.append(f"{weeks} {pluralize('week', weeks)}")
+    if days > 0:
+        result.append(f"{days} {pluralize('day', days)}")
+
+    return ", ".join(result) if result else "0 days" 
 
 
+def string_to_days(value):
+    """Coverts string representation to microsecond value"""
+    if not value:
+        raise ValidationError("Invalid input for conversion to days.") #For use outside of already validated data values
 
-
+    return TimeFrameField(max_length=35).get_prep_value(value)
 
 
 class TimeFrameField(models.CharField):
-    description= "A string field to represent a period of time either (years, months, weeks, days)"
+    description= "a string field to represent a period of time either (years, months, weeks, days)"
 
     def __init__(self, *args, **kwargs):
-        kwargs['max_length'] = 10 # max lifespan multiple years
+        kwargs['max_length'] = 35 # max lifespan multiple years
         super().__init__(*args, **kwargs)
 
     def db_type(self,connection):
-        """Specifing field data type for database"""
-        return 'BIGINT UNSIGNED NOT NULL'
+        """specifing field data type for database"""
+        return 'bigint unsigned not null'
 
     def get_prep_value(self,value):
-        """Converting string to value appropriate for db insertion"""
+        """converting string to value appropriate for db insertion"""
         if value is None:
             return None
          
-        time = value.split()
+        times = value.split(', ')
+        total = datetime.datetime(2017,1,1)
+        for time in times:
+            time = time.split()
 
-        if len(time) !=2:
-            raise ValidationError('number and timeframe must be seperated by a single space')
+            if len(time) !=2:
+                raise validationerror('number and timeframe must be seperated by a single space')
 
-        try:
-            num = int(time[0])
-        except ValueError:
-            raise ValidationError('Must have an numeric date')
+            try:
+                num = int(time[0])
+            except valueerror:
+                raise validationerror('must have an numeric date')
 
-        if num < 0:
-            raise ValidationError("value must be greater than 0")
+            if num < 0:
+                raise validationerror("value must be greater than 0")
 
-        timeframe = time[1].lower()
-        if timeframe == 'day' or timeframe =='days':
-            return timedelta(days=num).total_seconds() * 1e6
+            timeframe = time[1].lower()
+            if timeframe == 'day' or timeframe =='days':
+                total+= timedelta(days=num)
 
-        if timeframe  == 'week' or timeframe =='weeks':
-            return timedelta(weeks=num).total_seconds() * 1e6
+            elif timeframe  == 'week' or timeframe =='weeks':
+                total+= timedelta(weeks=num)
 
-        if timeframe == 'month' or timeframe =='months':
-            return timedelta(weeks=num*4).total_seconds() * 1e6
+            elif timeframe == 'month' or timeframe =='months':
+                total += relativedelta(months=num)
+            elif timeframe == 'year' or timeframe =='years':
+                total += relativedelta(years=num)
+            
+            else:
+                raise validationerror('timeframe must be days/weeks/months/years')
+        total -= datetime.datetime(2017,1,1)
+        total = total.days
+        print(total)
+        return total
 
-        if timeframe == 'year' or timeframe =='years':
-            return timedelta(days=num*365).total_seconds() * 1e6 
-
-        raise ValidationError('timeframe must be days/weeks/months/years')
 
     def from_db_value(self, value, expression, connection):
         """Converting db inserted values to TimeFrameField objects"""
         if value is None:
             return None
-        
-        return microseconds_to_date(value)
-    
-    def string_to_microseconds(self,value):
-        """Coverts string representation to microsecond value"""
-        if not value:
-            raise ValidationError("Invalid input for conversion to microseconds.")
 
-        dates = value.split(", ")
-        total_microseconds = 0
-        for date in dates:
-            total_microseconds += self.get_prep_value(date)
-        return total_microseconds
+        return days_to_string(value)
+
+
+   
 

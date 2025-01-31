@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import CharField,ManyToManyField,DurationField,ForeignKey,BigIntegerField,PositiveSmallIntegerField,DateTimeField,TextField
-from .fields import TimeFrameField,microseconds_to_date, pluralize
+from .fields import TimeFrameField, pluralize, string_to_days
 from django.db.models import UniqueConstraint
 from django.core.exceptions import ValidationError
 from datetime import timedelta
@@ -23,6 +23,10 @@ class Food(models.Model):
         """returns url for particular Food instance"""
         return reverse('food-detail',args=[str(self.id)])
 
+    def display_category(self):
+        """creating a string for category as ManyToManyField cost in admin model list_display"""
+        return ', '.join(category.category_type for category in self.category.all() )
+    display_category.short_description = 'Categories' # default description for category fields in admin
 
 class Category(models.Model):
     """Model representing food categories"""
@@ -31,7 +35,7 @@ class Category(models.Model):
 
     def __str__(self):
         """String representation of a Category object"""
-        return self.type
+        return self.category_type
     
     def get_absolute_url(self):
         """returns the url to access a particular Category instance"""
@@ -52,24 +56,32 @@ class StockFood(models.Model):
     food = ForeignKey(Food,on_delete=models.CASCADE)
     quantity = PositiveSmallIntegerField(default=1)
     added_date = DateTimeField(auto_now_add=True) #remember to exclude in forms
-    expiry_date = DateTimeField(help_text='Enter the expiry_date if known',blank=True,null=True)
+    expiry_date = DateTimeField(help_text='Enter the expiry date (optional)',blank=True,null=True)
+
+    def __str__(self):
+        """String representation of a stockFood"""
+        return self.food.name
 
     def save(self, *args, **kwargs):
-        """Overiding save method"""
+        """Save method overided to calculate expiry_date"""
         super().save(*args,**kwargs)
-        if self.expiry_date == "":
-            string_shelf_life = self.food.shelf_life
-            shelf_life_timedelta = timedelta(microseconds=self.food.shelf_life.string_to_microseconds(string_shelf_life))
+        if self.expiry_date is None:
+            shelf_life_days = string_to_days(self.food.shelf_life)
+            shelf_life_timedelta = timedelta(days=shelf_life_days)
             self.expiry_date = self.added_date + shelf_life_timedelta
-            super().save(update_field=['expiry_date'])
+            super().save(update_fields=['expiry_date'])
        
 
 
 class StockInstance(models.Model):
     """Model representing a specific users stock"""
     user = ForeignKey(User,on_delete=models.CASCADE,db_index=True)
-    name = CharField(max_length=200,default= str(User.username) + 'stockroom')
+    name = CharField(max_length=200,default= 'stockroom')
     
+    def __str__(self):
+        """String representation of a stockInstance model"""
+        return self.name
+
     @property
     def num_items(self):
         """returns the number of StockFood objects associated with stockInstance"""
@@ -80,3 +92,10 @@ class StockInstance(models.Model):
                 num += food.quantity
         return num
         
+    def save(self, *args, **kwargs):
+        """Overiding save method to produce a customised default StockInstance name"""
+        super().save(*args, **kwargs)
+        if self.name == 'stockroom':
+            self.name = self.user.username + " stockroom"
+            super().save(update_fields=['name'])
+   
