@@ -22,6 +22,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/', include('django.contrib.auth.urls')),
     path('inventory/',include('inventory.urls')),
     path('',RedirectView.as_view(url='inventory/',permanent=True)),
    ]   + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

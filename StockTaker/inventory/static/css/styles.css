@@ -1,0 +1,28 @@
+.sidebar-nav {
+  margin-top: 20px;
+  padding: 0;
+  list-style: none;
+}
+
+#book_count{
+  display: inline;
+
+}
+
+a ~ #book_count{
+  display: inline;
+}
+
+
+#logout-form {
+  display: inline;
+}
+#logout-form button {
+  padding: 0;
+  margin: 0;
+}
+
+
+#renew {
+  margin-left: 3em;
+}
