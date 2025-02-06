@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Food, Category, StockInstance, StockFood
+from .models import Food, Category, StockInstance, StockFood, Recipe
 
 @admin.register(Food)
 class FoodAdmin(admin.ModelAdmin):
@@ -36,5 +36,22 @@ class StockFoodAdmin(admin.ModelAdmin):
 
         (None,{
             'fields': ('food','quantity','expiry_date')
+        })
+    )
+
+@admin.register(Recipe)
+class RecipeAdmin(admin.ModelAdmin):
+    """Admin model class for Recipe moodel object"""
+    list_display = ('user','name')
+    list_filter = ('user',)
+    fieldsets = (
+        ('Overview',{
+            'fields': ('user','name')
+        }),
+        ('Type',{
+            'fields': ('ingredients','category')
+        }),
+        ('Details',{
+            'fields':('portion_size','portion_quantity','instructions')
         })
     )

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>My stockinstances</h1>
+
+{% if stockinstance_list %}
+
+<table>
+  {% for inventory in stockinstance_list %}
+  <tr>
+    <td><a href= '{{ inventory.get_absolute_url }}'>{{ inventory }}</a></td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% else %}
+  <p>You Currently have no inventory's</p>
+  <a href="{% url 'stockInstance-create' %}">Create an inventory</a>
+{% endif %}
+
+{% endblock %}

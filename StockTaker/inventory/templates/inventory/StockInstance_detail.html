@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block sidebar %}
+  {{ block.super }}
+  <hr>
+  <ul class="sidebar-nav">
+    <li><a href = "{% url 'stockInstance-update' stockinstance.id %}">Edit  {{ stockinstance.name }}</a></li>
+    <li><a href = "{% url 'stockInstance-delete' stockinstance.id %}">Delete  {{ stockinstance.name }}</a></li>
+  </ul>
+{% endblock %}
+
+{% block content %}
+<h1>{{ stockinstance.name }}</h1>
+  {% if stockinstance.stockfood_set.all %}
+
+    <ul>
+    {% for food in stockinstance.stockfood_set.all %}
+  <li><a href = ''>{{ food }}:  {{ food.quantity }}</a></li>
+    {% endfor %}
+    </ul>
+
+  {% else %}
+  <p>{{ stockinstance }} is currently empty!</p>
+  <a href=''>Add to    {{ stockinstance.name }}</a>
+{% endif %}
+
+{% endblock %}
