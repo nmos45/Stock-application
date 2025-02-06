@@ -1,0 +1,8 @@
+from django.shortcuts import render
+from django.views import generic
+from .models import StockInstance
+
+class StockInstanceListView(generic.ListView):
+    """class-based list view for stockinstances"""
+    model = StockInstance
+

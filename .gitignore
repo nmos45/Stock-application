@@ -6,3 +6,6 @@
 
 # used to protect db credentials
 .env
+
+
+__pcache__/

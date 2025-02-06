@@ -62,6 +62,10 @@ class StockFood(models.Model):
         """String representation of a stockFood"""
         return self.food.name
 
+    def get_absolute_url(self):
+        """returns the url to access a particular StockFood instance"""
+        return reverse('stockFood-detail', args=[ str(self.id)] )
+
     def save(self, *args, **kwargs):
         """Save method overided to calculate expiry_date"""
         super().save(*args,**kwargs)
@@ -79,8 +83,12 @@ class StockInstance(models.Model):
     name = CharField(max_length=200,default= 'stockroom')
     
     def __str__(self):
-        """String representation of a stockInstance model"""
+        """String representation of a stockInstance object"""
         return self.name
+
+    def get_absolute_url(self):
+        """returns the url to access a particular stockInstance object"""
+        return reverse('stockInstance-detail', args=[str(self.id)] )
 
     @property
     def num_items(self):
@@ -99,3 +107,33 @@ class StockInstance(models.Model):
             self.name = self.user.username + " stockroom"
             super().save(update_fields=['name'])
    
+class Recipe(models.Model):
+    """Model representing a Recipe object"""
+    user = ForeignKey(User, on_delete=models.CASCADE, db_index=True)
+    name = CharField(max_length=200)
+    ingredients = ManyToManyField(Food, help_text='Enter the recipes ingredients')
+    category = ManyToManyField(Category, help_text='Enter the dietary category e.g Vegan, Gluten Free') 
+    serving_sizes = (
+        ('g','grams'),
+        ('kg','kilograms'),
+        ('oz', 'ounces'),
+        ('ml', 'milliliters')
+    )
+    portion_size = CharField(max_length=2,
+                             choices=serving_sizes,
+                             blank=True,
+                             default='g',
+                             help_text='Enter the measurement for portion of recipe')
+    portion_quantity = PositiveSmallIntegerField(default=250)
+    instructions = TextField(help_text='Enter a clear concise method for making this recipe.')
+    created_at = DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        """String representation of a Recipe object"""
+        return self.name
+    
+    def get_absolute_url(self):
+        """returns a url to access a particular Recipe instance"""
+        return reverse('recipe-detail', args =[str(self.id)] )
+
+
