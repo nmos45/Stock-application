@@ -3,7 +3,7 @@
 {% block sidebar %}
   {{ block.super }}
   <hr>
-  <ul class="sidebar-nav">
+  <ul class='sidebar-nav'>
     <li><a href = "{% url 'stockInstance-update' stockinstance.id %}">Edit  {{ stockinstance.name }}</a></li>
     <li><a href = "{% url 'stockInstance-delete' stockinstance.id %}">Delete  {{ stockinstance.name }}</a></li>
   </ul>
@@ -12,16 +12,28 @@
 {% block content %}
 <h1>{{ stockinstance.name }}</h1>
   {% if stockinstance.stockfood_set.all %}
+  
+  <table>
+    <tr>
+      <th>Food</th>
+      <th>Quantity</th>
+    </tr>
 
-    <ul>
-    {% for food in stockinstance.stockfood_set.all %}
-  <li><a href = ''>{{ food }}:  {{ food.quantity }}</a></li>
+  {% for food in stockinstance.stockfood_set.all %}
+
+  <tr>
+    <td><a href='{{ food.get_absolute_url }}'>{{ food }}</a></td>
+    <td>{{ food.quantity }}</td>
+  </tr>
+
     {% endfor %}
-    </ul>
+  </table>
 
+  <a href='{% url 'stockFood-create' stockinstance.id %}'>Add to    {{ stockinstance.name }}</a>
+  
   {% else %}
   <p>{{ stockinstance }} is currently empty!</p>
-  <a href=''>Add to    {{ stockinstance.name }}</a>
+  <a href='{% url 'stockFood-create' stockinstance.id %}'>Add to    {{ stockinstance.name }}</a>
 {% endif %}
 
 {% endblock %}
