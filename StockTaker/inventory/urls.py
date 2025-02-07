@@ -7,5 +7,8 @@ urlpatterns =  [
         path('create',views.StockInstanceCreate.as_view(),name='stockInstance-create'),
         re_path(r'^(?P<pk>\d+)/update/$',views.StockInstanceUpdate.as_view(),name='stockInstance-update'),
         re_path(r'^(?P<pk>\d+)/delete/$',views.StockInstanceDelete.as_view(),name='stockInstance-delete'),
-
+        re_path(r'^stockfood/(?P<pk>\d+)/$',views.StockFoodDetail.as_view(),name='stockFood-detail'),
+        re_path(r'^stockfood/create/(?P<pk>\d+)$',views.StockFoodCreate.as_view(),name='stockFood-create'),
+        re_path(r'^stockfood/(?P<pk>\d+)/update/$',views.StockFoodUpdate.as_view(),name='stockFood-update'),
+        re_path(r'^stockfood/(?P<pk>\d+)/delete/$',views.StockFoodDelete.as_view(),name='stockFood-delete'),
 ]

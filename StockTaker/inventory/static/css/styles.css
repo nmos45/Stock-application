@@ -26,3 +26,11 @@ a ~ #book_count{
 #renew {
   margin-left: 3em;
 }
+
+td{
+  padding-right: 10em;
+}
+
+table{
+  border-spacing: 5em; 
+}
