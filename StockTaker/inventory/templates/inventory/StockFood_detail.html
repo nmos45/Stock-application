@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block sidebar %}
+
+  {{ block.super }}
+<hr>
+<ul class='sidebar-nav'>
+  <li><a href="{% url 'stockFood-update' stockfood.id %}">Edit</a></li>
+  <li><a href="{% url 'stockFood-delete' stockfood.id %}">Remove food</a></li>
+</ul>
+
+{% endblock %}
+
+{% block content %}
+
+<h1><a href = "">{{ stockfood.food }}</a></h1>
+
+  <ul>
+  <li>Quantity: {{ stockfood.quantity }}</li>
+  <li>Expires: {{ stockfood.expiry_date }}</li>
+</ul>
+
+{% endblock %}
