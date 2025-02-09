@@ -1,9 +1,10 @@
 from django.shortcuts import render
 from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from .models import StockInstance, StockFood
+from .models import StockInstance, StockFood, Food
 from django.contrib.auth.mixins import LoginRequiredMixin,PermissionRequiredMixin
 from django.urls import reverse, reverse_lazy
+from django.db.models import Q
 
 class StockInstanceListView(LoginRequiredMixin, generic.ListView):
     """class-based list view for StockInstances"""
@@ -38,7 +39,7 @@ class StockFoodDetail(LoginRequiredMixin, generic.DetailView):
     model=StockFood
 
 class StockFoodCreate(LoginRequiredMixin, CreateView):
-    """generic-edit view to create a stockood instance using forms"""
+    """generic-edit view to create a stockfood instance using forms"""
     model=StockFood 
     fields=['stock_instance','food','quantity','expiry_date']
 
@@ -70,3 +71,28 @@ class StockFoodDelete(LoginRequiredMixin, DeleteView):
     def get_success_url(self):
         stockinstance = self.object.stock_instance 
         return reverse('stockInstance-detail', kwargs={'pk':stockinstance.id})
+
+class FoodListView(generic.ListView):
+    """class-based list view for Food objects"""
+    model = Food
+    
+    def get_queryset(self):
+        """Overiding queryset for search result"""
+        query = self.request.GET.get('q')
+        if query:
+            object_list = Food.objects.filter(
+                Q(name__icontains=query) |
+                Q(category__category_type__icontains=query)
+        ).distinct()
+            return object_list
+        return Food.objects.all()
+
+class FoodDetailView(generic.DetailView):
+    """class-based detail view for specific Food instance"""
+    model=Food
+
+class FoodCreate(LoginRequiredMixin, CreateView):
+    """generic-edit view to create a food instance using forms"""
+    model=Food
+    fields = ['name','category','shelf_life']
+
