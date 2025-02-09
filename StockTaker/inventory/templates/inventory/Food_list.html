@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form action = {% url 'all-foods' %} method ='get'>
+  <input name='q' type='text' placeholder='Search...'>
+</form>
+
+{% if food_list %}
+<ul>
+  {% for item in food_list %}
+  <li><a href='{{ item.get_absolute_url }}'>{{ item.name }}</a></li>
+  {% endfor %}
+</ul>
+
+{% else %}
+<p>No results.</p>
+
+{% endif %}
+
+<a href="{% url 'food-create' %}" >Add food</a>
+
+{% endblock %}

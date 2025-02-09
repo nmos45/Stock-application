@@ -34,3 +34,7 @@ td{
 table{
   border-spacing: 5em; 
 }
+
+form{
+  padding: 3em;
+}

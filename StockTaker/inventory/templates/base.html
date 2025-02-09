@@ -21,8 +21,9 @@
             <ul class="sidebar-nav">
              
               {% if user.is_authenticated %}
-                <li><a href= "{% url 'homepage' %}">Home</a></li>
                 <li>User: {{ user.get_username }}</li>
+                <li><a href= "{% url 'homepage' %}">Home</a></li>
+                <li><a href= "{% url 'all-foods' %}">Foods</a></li>
                 <li>
                   <form id="logout_form" method="post" action="{% url 'logout' %}">
                     {% csrf_token %}
