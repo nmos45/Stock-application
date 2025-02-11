@@ -14,4 +14,5 @@ urlpatterns =  [
         path('foods',views.FoodListView.as_view(),name='all-foods'),
         re_path(r'^foods/(?P<pk>\d+)/$',views.FoodDetailView.as_view(),name='food-detail'),
         path('foods/create',views.FoodCreate.as_view(),name='food-create'),
+        re_path(r'^foods/(?P<pk>\d+)/update/$',views.FoodUpdate.as_view(),name='food-update'),
 ]
