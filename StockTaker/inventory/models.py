@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import CharField,ManyToManyField,DurationField,ForeignKey,BigIntegerField,PositiveSmallIntegerField,DateTimeField,TextField
+from django.db.models import CharField,ManyToManyField,DurationField,ForeignKey,BigIntegerField,PositiveSmallIntegerField,DateTimeField,TextField,BooleanField
 from .fields import TimeFrameField, pluralize, string_to_days
 from django.db.models import UniqueConstraint
 from django.core.exceptions import ValidationError
@@ -11,9 +11,11 @@ from django.urls import reverse
 
 class Food(models.Model):
     """Model representing a specific food item"""
+    user = ForeignKey(User,on_delete=models.CASCADE,db_index=True)
     name = CharField(max_length=200)
     category = ManyToManyField('Category',help_text="Enter the foods category e.g(milk)")
     shelf_life = TimeFrameField(help_text='Enter the number and timeframe (days/weeks/months/years), e.g. 4 weeks')
+    verified = BooleanField()
     
     def __str__(self):
         """String representation of a food object"""
@@ -27,6 +29,8 @@ class Food(models.Model):
         """creating a string for category as ManyToManyField cost in admin model list_display"""
         return ', '.join(category.category_type for category in self.category.all() )
     display_category.short_description = 'Categories' # default description for category fields in admin
+
+
 
 class Category(models.Model):
     """Model representing food categories"""
@@ -74,7 +78,16 @@ class StockFood(models.Model):
             shelf_life_timedelta = timedelta(days=shelf_life_days)
             self.expiry_date = self.added_date + shelf_life_timedelta
             super().save(update_fields=['expiry_date'])
+        self.update_food_verification()
        
+    def update_food_verification(self):
+        """method to update the verification status of a food instance specified in StockFood instance"""
+        if self.food.verified is None:
+            count = StockFood.objects.filter(food=self.food).count()
+            if count > 50: 
+                food_obj = Food.objects.get(id=self.food.id)
+                food_obj.verified = True
+                food_obj.save()
 
 
 class StockInstance(models.Model):
