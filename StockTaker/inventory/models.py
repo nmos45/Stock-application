@@ -15,7 +15,7 @@ class Food(models.Model):
     name = CharField(max_length=200)
     category = ManyToManyField('Category',help_text="Enter the foods category e.g(milk)")
     shelf_life = TimeFrameField(help_text='Enter the number and timeframe (days/weeks/months/years), e.g. 4 weeks')
-    verified = BooleanField()
+    verified = BooleanField(null=True)
     
     def __str__(self):
         """String representation of a food object"""
