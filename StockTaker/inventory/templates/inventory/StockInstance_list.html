@@ -15,7 +15,9 @@
 
 {% else %}
   <p>You Currently have no inventory's</p>
-  <a href="{% url 'stockInstance-create' %}">Create an inventory</a>
 {% endif %}
+
+
+  <a href="{% url 'stockInstance-create' %}">Create an inventory</a>
 
 {% endblock %}

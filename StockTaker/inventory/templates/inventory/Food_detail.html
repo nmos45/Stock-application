@@ -8,7 +8,8 @@
 <p>Shelf life: {{ food.shelf_life }}</p>
 
 {% if food.user == request.user %}
-  <a href="{% url 'food-update' food.id %}">Update {{ food.name }}</a>
+  <a href="{% url 'food-update' food.id %}">Update {{ food }}</a>
+  <a href="{% url 'food-delete' food.id %}">Delete {{ food }}</a>
 {% endif %}
 
 {% endblock %}
