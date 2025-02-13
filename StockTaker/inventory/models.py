@@ -11,7 +11,7 @@ from django.urls import reverse
 
 class Food(models.Model):
     """Model representing a specific food item"""
-    user = ForeignKey(User,on_delete=models.CASCADE,db_index=True)
+    user = ForeignKey(User,on_delete=models.SET_NULL,null=True,db_index=True)
     name = CharField(max_length=200)
     category = ManyToManyField('Category',help_text="Enter the foods category e.g(milk)")
     shelf_life = TimeFrameField(help_text='Enter the number and timeframe (days/weeks/months/years), e.g. 4 weeks')
@@ -77,18 +77,26 @@ class StockFood(models.Model):
             shelf_life_days = string_to_days(self.food.shelf_life)
             shelf_life_timedelta = timedelta(days=shelf_life_days)
             self.expiry_date = self.added_date + shelf_life_timedelta
-            super().save(update_fields=['expiry_date'])
-        self.update_food_verification()
+            super().save(update_fields=['expiry_date']) # optimised query to just save()
+        self.update_food_verification(self.food)
        
-    def update_food_verification(self):
-        """method to update the verification status of a food instance specified in StockFood instance"""
-        if self.food.verified is None:
-            count = StockFood.objects.filter(food=self.food).count()
-            if count > 50: 
-                food_obj = Food.objects.get(id=self.food.id)
-                food_obj.verified = True
-                food_obj.save()
+    def delete(self,*args,**kwargs):
+        """Overiding delete method to update food field"""
+        food_instance = self.food
+        super().delete(*args,**kwargs)
+        self.update_food_verification(food_instance)
 
+    @staticmethod
+    def update_food_verification(food_instance):
+        """method to update the verification status of a food instance specified in StockFood instance"""
+        count = StockFood.objects.filter(food=food_instance).count()
+        if count >= 10 and not food_instance.verified: 
+            food_instance.verified = True
+            food_instance.save(update_fields=['verified'])
+
+        elif count<10 and food_instance.verified:
+            food_instance.verified = False
+            food_instance.save(update_fields=['verified'])
 
 class StockInstance(models.Model):
     """Model representing a specific users stock"""
