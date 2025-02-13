@@ -118,6 +118,8 @@ class StockFoodDelete(LoginRequiredMixin, DeleteView):
         if StockFood_obj.stock_instance.user != self.request.user:
             raise PermissionDenied("You are not authorized to delete this stockfood")
         return StockFood_obj
+    
+
 
 
 class FoodListView(generic.ListView):
@@ -184,6 +186,7 @@ class FoodDelete(LoginRequiredMixin,generic.DeleteView):
         if food_obj.user != self.request.user:
             raise PermissionDenied('You are not authorized to delete this food')
         return food_obj
+    
 
 
 
