@@ -42,8 +42,8 @@ python manage.py runserver
 
 ## 🏗 Usage
 
-Log In – Use the superuser credentials to access the admin panel.
-Add Categories – Create product categories to organize your inventory.
-Add Products – Input product details, including name, SKU, quantity, and category.
-Manage Inventory – Update stock levels as products are added or removed.
-Generate Reports – Navigate to the reports section to view inventory analytics.
+- **Log In** – Use the superuser credentials to access the admin panel.
+- **Add** Categories – Create product categories to organize your inventory.
+- **Add** Products – Input product details, including name, SKU, quantity, and category.
+- **Manage** Inventory – Update stock levels as products are added or removed.
+- **Generate** Reports – Navigate to the reports section to view inventory analytics.
