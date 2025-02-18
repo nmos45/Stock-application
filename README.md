@@ -1,6 +1,6 @@
 # Stockify
 
-![Database Design](db_design.png)
+![Database Design]("db_design.png")
 
 Stock-Application is a web-based inventory management system built using the Django framework. It enables consumers to monitor food stock and their respective expiry dates.
 
@@ -19,7 +19,7 @@ Follow these steps to set up the Stock-Application locally:
 git clone https://github.com/nmos45/Stock-application.git
 cd Stock-application
 
-### 3️⃣ Install Dependencies
+#### 3️⃣ Install Dependencies
 ```bash
 pip install -r requirements.txt
 
