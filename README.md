@@ -1,7 +1,7 @@
 # Stockify
 
 ![Database Design]("db_design.png")
-
+<a href="model-design-diagram.png">Database Design</a>
 Stock-Application is a web-based inventory management system built using the Django framework. It enables consumers to monitor food stock and their respective expiry dates.
 
 ## 🚀 Features
