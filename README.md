@@ -18,23 +18,27 @@ Follow these steps to set up the Stock-Application locally:
 ```bash
 git clone https://github.com/nmos45/Stock-application.git
 cd Stock-application
+```
 
-#### 3️⃣ Install Dependencies
+### 3️⃣ Install Dependencies
 ```bash
 pip install -r requirements.txt
+```
 
 ### 4️⃣ Apply Migrations
 ```bash
 python manage.py migrate
+```
 
 ### 5️⃣ Create a Superuser (For Admin Access)
 ```bash
 python manage.py createsuperuser
+```
 
 ### 6️⃣ Run the Development Server
 ``bash
 python manage.py runserver
-
+```
 
 ## 🏗 Usage
 
