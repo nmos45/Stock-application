@@ -7,7 +7,7 @@ Stockify is a web-based inventory management system built using the Django frame
 - **Inventory Tracking**- Monitor your stock levels to prevent shortages and overstocking.
 - **Food lookup**- Search functionality to lookup specific foods or categories
 - **Authentication**- email password reset, google sign in and reserved create,delete permissions for original object creator.
-- **Design**- models where designed to 3NF, incluiding indexes on frequently queried atributes.<a href="model-design-diagram.png">Database Design</a>
+- **Design**- models where designed so that they are normalised 3NF, including indexes on frequently queried atributes.: <a href="model-design-diagram.png">Database Design</a>
 
 ## 🛠 Installation
 
