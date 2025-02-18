@@ -1,6 +1,6 @@
 # Stockify
 
-![Database Design]("db_design.png")
+![Database Design](model-design-diagram.png)
 <a href="model-design-diagram.png">Database Design</a>
 Stock-Application is a web-based inventory management system built using the Django framework. It enables consumers to monitor food stock and their respective expiry dates.
 
@@ -44,6 +44,5 @@ python manage.py runserver
 
 - **Log In** – Use the superuser credentials to access the admin panel.
 - **Add** Categories – Create product categories to organize your inventory.
-- **Add** Products – Input product details, including name, SKU, quantity, and category.
+- **Add** Products – Input product details, including name, expirydate, quantity, and category.
 - **Manage** Inventory – Update stock levels as products are added or removed.
-- **Generate** Reports – Navigate to the reports section to view inventory analytics.
