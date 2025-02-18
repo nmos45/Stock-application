@@ -36,7 +36,7 @@ python manage.py createsuperuser
 ```
 
 ### 6️⃣ Run the Development Server
-``bash
+```bash
 python manage.py runserver
 ```
 
