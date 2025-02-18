@@ -1,0 +1,8 @@
+asgiref==3.8.1
+Django==4.2.18
+mysqlclient==2.2.7
+pip==24.3.1
+python-dateutil==2.9.0.post0
+python-decouple==3.8
+six==1.17.0
+sqlparse==0.5.3
