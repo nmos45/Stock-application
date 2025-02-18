@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from .models import StockInstance, StockFood, Food
@@ -7,6 +7,7 @@ from django.urls import reverse, reverse_lazy
 from django.db.models import Q
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
+
 
 class StockInstanceListView(LoginRequiredMixin, generic.ListView):
     """class-based list view for StockInstances"""
