@@ -1,17 +1,15 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
 
-  <form class="crud" action = "" method="post">
+  <form id = "recipe-form" class="crud" action='' method='post'>
     {% csrf_token %}
 
     <ul>
       {{ form.as_ul }}
       <input type='submit' value='Submit' />
     </ul>
-    
 
   </form>
 
 {% endblock %}
-

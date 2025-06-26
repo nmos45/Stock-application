@@ -2,15 +2,14 @@
 
 {% block content %}
 
-<form action='' method='post'>
-  {% csrf_token %}
+  <form class="crud" action='' method='post'>
+    {% csrf_token %}
+        
+    <ul>
+    {{ form.as_ul }}
+    <input type='submit' value='Submit'/>
+    </ul>
 
-  <table>
-    {{ form.as_table }}
-</table>
-
-  <input type='submit' value='Submit'/>
-  
-</form>
-
+    
+  </form>
 {% endblock %}

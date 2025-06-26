@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+
+
+{% block content %}
+<section class="detail">
+
+<aside id="recipe-heading">
+  <h1 id="recipe-name">{{ recipe.name }}</h1>
+  <span id="open-info" onclick=showInfo(true) class="material-symbols-outlined">
+  info_i
+  </span>
+</aside>
+
+<ul>
+  {% for instruction in instruction_list %}
+  <li>{{ instruction }}</li>
+  {% endfor %}
+</ul>
+
+<p><i>Ingredients: {{ recipe.display_ingredients }}</i></p>
+
+<dialog id="info">
+  <div id="info-wrapper">
+    <span id="close-recipe" onclick=showInfo(false) class="material-symbols-outlined">
+    close
+    </span>
+    <p>Portion size: {{ recipe.portion_quantity }} {{ recipe.portion_size }}</p>
+    <p>Allergens: {{ recipe.display_category}}</p>
+    <p>Created by: {{ recipe.user.username }}</p>
+
+    {% if request.user == recipe.user %}
+    <nav id="owner-links">
+      <a href="{% url 'recipe-update' recipe.id %}">edit
+        <span id="edit-icon" class="material-symbols-outlined">
+        arrow_selector_tool
+        </span>
+      </a>
+
+      <a href="{% url 'recipe-delete' recipe.id %}">delete 
+        <span id="delete-icon" class="material-symbols-outlined">
+        delete
+        </span>
+      </a>
+    </nav>
+{% endif %}
+  </div>
+</dialog>
+
+<a class="add-link" href="{% url 'recipe-create' %}" >Create a recipe<span class="material-symbols-outlined">add</span></a>
+
+
+</section>
+
+{% endblock %}

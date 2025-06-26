@@ -1,35 +1,28 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
+ <section id="recipes"> 
+
+  <h1>Recipes</h1>
 
 
-<section id="foods">
+    <form id="search-form" autocomplete="off" action = "" method ='get'>
 
-<h1>foods</h1>
+    <input class="search" name='q' type='text' placeholder='Search...'>
 
-<form id="search-form" autocomplete="off" action = {% url 'all-foods' %} method ='get'>
+    <span class="material-symbols-outlined">
+    search
+    </span>
 
-<input class="search" name='q' type='text' placeholder='Search...'>
+    </form>
 
- <span class="material-symbols-outlined">
-search
-</span>
+    <ul id="recipe-list">
+    {% for recipe in recipe_list %}
+    <li class="recipe-container"><a href="{{ recipe.get_absolute_url }}">{{ recipe.name }}</a></li>
+    {% endfor %}
+    </ul>
 
-</form>
-{% if food_list %}
-<ul id="food-list">
-  {% for item in food_list %}
-  <li class="food-container"><a href='{{ item.get_absolute_url }}'>{{ item.name }}</a></li>
-  {% endfor %}
-</ul>
-
-{% else %}
-<p>No results.</p>
-
-{% endif %}
-
-<a class="add-link" href="{% url 'food-create' %}" >Add food <span class="material-symbols-outlined">add</span></a>
+  <a class="add-link" href="{% url 'recipe-create' %}" >Add recipe <span class="material-symbols-outlined">add</span></a>
 
     <span class="step-links">
         {% if page_obj.has_previous %}
@@ -57,4 +50,5 @@ arrow_right_alt
         {% endif %}
     </span>
 </section>
+
 {% endblock %}

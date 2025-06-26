@@ -1,23 +1,36 @@
 {% extends 'base.html' %}
 
+
 {% block content %}
-<h1>My stockinstances</h1>
+
+<section id="Instances-section">
 
 {% if stockinstance_list %}
+<h1>My stockrooms</h1>
 
-<table>
+
+  <ul id ="Instances-container">
   {% for inventory in stockinstance_list %}
-  <tr>
-    <td><a href= '{{ inventory.get_absolute_url }}'>{{ inventory }}</a></td>
-  </tr>
+
+    <li class="Inventory-Instance">
+      <span class="right-arrow material-symbols-outlined">arrow_forward
+      </span>
+      <a  href= '{{ inventory.get_absolute_url }}'>{{ inventory }}</a>
+    </li>
+
   {% endfor %}
-</table>
+  </ul>
 
 {% else %}
-  <p>You Currently have no inventory's</p>
+  <p class="hidden">You Currently have no inventory's</p>
 {% endif %}
 
 
-  <a href="{% url 'stockInstance-create' %}">Create an inventory</a>
+  <a class="hidden" href="{% url 'stockInstance-create' %}">Create an inventory</a>
+</section>
+
+  <div id="Instance-image"></div>
 
 {% endblock %}
+
+
