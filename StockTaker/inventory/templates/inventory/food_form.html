@@ -2,14 +2,13 @@
 
 {% block content %}
 
-<form action='' method = 'post'>
+<form class="crud" action='' method = 'post'>
     {% csrf_token %}
     
-    <table>
-      {{ form.as_table }}
-    </table>
-    
-    <input type='submit' value='Submit' />
+    <ul id="food-create-list">
+    {{ form.as_ul }}
+    <input type='submit' value='Submit'/>
+    </ul>
 
 </form> 
 

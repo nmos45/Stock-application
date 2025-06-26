@@ -1,39 +1,110 @@
 {% extends 'base.html' %}
 
-{% block sidebar %}
-  {{ block.super }}
-  <hr>
-  <ul class='sidebar-nav'>
-    <li><a href = "{% url 'stockInstance-update' stockinstance.id %}">Edit  {{ stockinstance.name }}</a></li>
-    <li><a href = "{% url 'stockInstance-delete' stockinstance.id %}">Delete  {{ stockinstance.name }}</a></li>
+{% block  user_embedded %}
+  <ul>
   </ul>
 {% endblock %}
 
+
 {% block content %}
-<h1>{{ stockinstance.name }}</h1>
-  {% if stockinstance.stockfood_set.all %}
+
   
-  <table>
-    <tr>
-      <th>Food</th>
-      <th>Quantity</th>
-    </tr>
+<section id="stockfoods">
+  <aside id="header-info">
+    <h1>{{ stockinstance.name }}</h1>
+    <span id="open-info" onclick=showInfo(true) class="material-symbols-outlined">
+    info_i
+    </span>
+  </aside>
+  {% if stockinstance.stockfood_set.all %}
 
-  {% for food in stockinstance.stockfood_set.all %}
+    <form id="search-form" autocomplete="off" action = "" method ='get'>
 
-  <tr>
-    <td><a href='{{ food.get_absolute_url }}'>{{ food }}</a></td>
-    <td>{{ food.quantity }}</td>
-  </tr>
+      <input class="search" name='q' type='text' placeholder='Search...' hx-get="/inventory/{{ stockinstance.id }}" hx-trigger="keyup changed delay:500ms" >
+
+    <span class="material-symbols-outlined">
+    search
+    </span>
+  <span class="material-symbols-outlined">
+  tune
+  </span>
+      <input type="checkbox" name="filter" id="filter-input" hx-get="/inventory/{{ stockinstance.id }}" hx-trigger="change delay:500ms">
+    </form>
+    
+
+
+  <ul id="stockfoods-list" hx-swap-oob="true">
+
+  {% for food in page_obj %}
+    <li class="stockfood-container">
+      {% if food.expired %}
+        <a class="expired" href='{{ food.get_absolute_url }}'>{{ food }}
+        </a>
+      {% else %}
+        <a href='{{ food.get_absolute_url }}'>{{ food }}
+        </a>
+      {% endif %}
+        <p>
+          {{ food.quantity }}   
+        </p>
+    </li>
 
     {% endfor %}
-  </table>
 
-  <a href='{% url 'stockFood-create' stockinstance.id %}'>Add to    {{ stockinstance.name }}</a>
-  
+  </ul>
+
   {% else %}
   <p>{{ stockinstance }} is currently empty!</p>
-  <a href='{% url 'stockFood-create' stockinstance.id %}'>Add to    {{ stockinstance.name }}</a>
-{% endif %}
+  {% endif %}
+
+  <dialog id="info">
+    <div id="info-wrapper">
+      <span id="close-recipe" onclick=showInfo(false) class="material-symbols-outlined">
+      close
+      </span>
+      <nav id="owner-links">
+        <a href = "{% url 'stockInstance-update' stockinstance.id %}">edit
+          <span id="edit-icon" class="material-symbols-outlined">
+          arrow_selector_tool
+          </span>
+        </a>
+
+        <a href = "{% url 'stockInstance-delete' stockinstance.id %}">delete 
+          <span id="delete-icon" class="material-symbols-outlined">
+          delete
+          </span>
+        </a>
+      </nav>
+    </div>
+  </dialog>
+  <a class="add-link" href='{% url 'stockFood-create' stockinstance.id %}'>Add Food <span class="material-symbols-outlined">add</span></a>
+
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}"><span class="material-symbols-outlined">
+    arrow_left_alt
+    </span></a>
+        {% else %}
+
+          <a href=""><span class="material-symbols-outlined">
+          arrow_left_alt
+          </span></a>
+              {% endif %}
+
+        <span class="current">{{ page_obj.number }}</span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}"><span class="material-symbols-outlined">
+            arrow_right_alt
+            </span></a>
+        {% else %}
+
+          <a href=""><span class="material-symbols-outlined">
+          arrow_right_alt
+          </span></a>
+        {% endif %}
+    </span>
+<section>
+
 
 {% endblock %}

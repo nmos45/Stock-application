@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<section class="delete">
+  <form class="delete-page" action='' method='post' >
+      {% csrf_token %}
+    
+    <p>Are you sure you want to delete  {{ recipe }}?</p>
+    <input type='submit' value='Yes, delete.' />
+
+  </form>
+</section>
+
+{% endblock %}
