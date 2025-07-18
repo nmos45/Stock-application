@@ -2,38 +2,39 @@
 
 {% block content %}
 
-  {% if form.errors %}
-    <p>Your username and password didn't match. Please try again.</p>
-  {% endif %}
-
-  {% if next %}
-    {% if user.is_authenticated %}
-      <p>Your account doesn't have access to this page. To proceed,
-      please login with an account that has access.</p>
-    {% else %}
-      <p>Please login to see this page.</p>
-    {% endif %}
-  {% endif %}
-
-  <form method="post" action="{% url 'login' %}">
+  <form class="crud login" method="post" action="{% url 'login' %}">
     {% csrf_token %}
-    <table>
-      <tr>
-        <td>{{ form.username.label_tag }}</td>
-        <td>{{ form.username }}</td>
-      </tr>
-      <tr>
-        <td>{{ form.password.label_tag }}</td>
-        <td>{{ form.password }}</td>
-      </tr>
-    </table>
-    <input type="submit" value="login">
+    <ul>
+      <li>
+        {{ form.username.label_tag }}
+        {{ form.username }}
+      </li>
+      <li>
+        {{ form.password.label_tag }}
+        {{ form.password }}
+      </li>
+    <li><input id="login-button" type="submit" value="login"></li>
+   <a href="{% url 'google-login' %}">Google sign in</a>
+   <a href="{% url 'password_reset' %}">Lost password?</a>
+  <section id="errors">
+    {% if form.errors %}
+      <p>Your username and password didn't match. Please try again.</p>
+    {% endif %}
+
+    {% if next %}
+      {% if user.is_authenticated %}
+        <p>Your account doesn't have access to this page. To proceed,
+        please login with an account that has access.</p>
+      {% else %}
+        <p>Please login to see this page.</p>
+      {% endif %}
+    {% endif %}
+  </section>
+    </ul>
     <input type="hidden" name="next" value="{{ next }}">
   </form>
 
-  <p><a href="{% url 'google-login' %}">Google sign in</a></p>
 
-  <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
 
 {% endblock %}
 

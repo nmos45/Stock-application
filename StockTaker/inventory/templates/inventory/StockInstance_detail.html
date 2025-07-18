@@ -10,44 +10,85 @@
 
   
 <section id="stockfoods">
-  <aside id="header-info">
+
+  <aside class="header-info">
     <h1>{{ stockinstance.name }}</h1>
-    <span id="open-info" onclick=showInfo(true) class="material-symbols-outlined">
+    <span onclick=showHeaderInfo(true) class="open-info-header material-symbols-outlined">
     info_i
     </span>
   </aside>
   {% if stockinstance.stockfood_set.all %}
 
+  <section class="filters">
     <form id="search-form" autocomplete="off" action = "" method ='get'>
-
-      <input class="search" name='q' type='text' placeholder='Search...' hx-get="/inventory/{{ stockinstance.id }}" hx-trigger="keyup changed delay:500ms" >
+      <input class="search" name='q' type='text' placeholder='Search...' hx-get="/inventory/{{ stockinstance.id }}" hx-trigger="keyup changed delay:500ms" hx-target="#stockfoods-list">
 
     <span class="material-symbols-outlined">
     search
     </span>
-  <span class="material-symbols-outlined">
-  tune
-  </span>
-      <input type="checkbox" name="filter" id="filter-input" hx-get="/inventory/{{ stockinstance.id }}" hx-trigger="change delay:500ms">
+
     </form>
     
 
+    <ul id="filter-list">
+      <li>
+      <span id="open-filters" class="material-symbols-outlined">
+      tune 
+      </span>       
+      <ul id="inner-list">
+          <li>
+            <label class="checkbox-label">
+                <input type="checkbox" name="filter" id="filter-input" hx-get="/inventory/{{ stockinstance.id }}" hx-trigger="change delay:500ms" hx-target="#stockfoods-list"> 
+            Expired 
+            </label>
+
+          </li>
+        </ul>
+      </li>
+    </ul>
+
+</section>
 
   <ul id="stockfoods-list" hx-swap-oob="true">
 
-  {% for food in page_obj %}
-    <li class="stockfood-container">
-      {% if food.expired %}
-        <a class="expired" href='{{ food.get_absolute_url }}'>{{ food }}
-        </a>
-      {% else %}
-        <a href='{{ food.get_absolute_url }}'>{{ food }}
-        </a>
-      {% endif %}
-        <p>
-          {{ food.quantity }}   
-        </p>
-    </li>
+  {% for stockfood in page_obj %}
+
+        <li>
+        <section id="stockfood-detail">
+          <article class="dialog-container detail-dialog">
+
+            <aside class="header-info">
+              <h1><a href = '{{ stockfood.food.get_absolute_url }}'>{{ stockfood.food }}</a></h1>
+              <span class="open-dialog open-info material-symbols-outlined">
+              info_i
+              </span>
+            </aside>
+
+              <ul>
+              <li>Quantity: {{ stockfood.quantity }}</li>
+              {% if stockfood.expired %}
+                <li><em>Expired</em>: {{ stockfood.expiry_date }}</li>
+              {% else %}
+                <li>Expires: {{ stockfood.expiry_date }}</li>
+              {% endif %}
+            </ul>
+
+
+            <dialog class="dialog">
+              <div class="dialog-wrapper">
+              <span  class="close-dialog material-symbols-outlined">
+              close
+              </span>
+            <ul>
+              <li><a href="{% url 'stockFood-update' stockfood.id %}">Edit</a></li>
+              <li><a href="{% url 'stockFood-delete' stockfood.id %}">Remove food</a></li>
+            </ul>
+            </div>
+            </dialog>
+
+          </article>
+        </section>
+        </li>
 
     {% endfor %}
 
@@ -57,9 +98,9 @@
   <p>{{ stockinstance }} is currently empty!</p>
   {% endif %}
 
-  <dialog id="info">
-    <div id="info-wrapper">
-      <span id="close-recipe" onclick=showInfo(false) class="material-symbols-outlined">
+  <dialog id="header-dialog">
+    <div id="info-wrapper" >
+      <span id="close-recipe" onclick=showHeaderInfo(false) class="material-symbols-outlined">
       close
       </span>
       <nav id="owner-links">

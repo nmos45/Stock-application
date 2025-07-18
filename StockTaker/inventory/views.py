@@ -46,7 +46,7 @@ class StockInstanceDetailView(LoginRequiredMixin, generic.DetailView):
         if filter:
             foods = foods.filter(expiry_date__lt=timezone.now())
         # paginate
-        paginator = Paginator(foods, 6)
+        paginator = Paginator(foods, 8)
         page_number = self.request.GET.get("page")
         page_obj = paginator.get_page(page_number)
         context["page_obj"] = page_obj
@@ -115,10 +115,21 @@ class StockFoodDetail(LoginRequiredMixin, generic.DetailView):
         return StockFood_obj
 
 
+class StockFoodForm(forms.ModelForm):
+    food_display = forms.CharField(label="Food", disabled=True, required=False)
+
+    class Meta:
+        model = StockFood
+        fields = ['food', 'quantity', 'expiry_date']
+        widgets = {
+            'food': forms.Select(attrs={'class': 'form-select form-control'}),
+        }
+
+
 class StockFoodCreate(LoginRequiredMixin, CreateView):
     """generic-edit view to create a stockfood instance using forms"""
     model = StockFood
-    fields = ['food', 'quantity', 'expiry_date']
+    form_class = StockFoodForm
 
     def get_object(self, queryset=None):
         """Overiding get_object method to prevent unauthorized access"""
@@ -133,42 +144,27 @@ class StockFoodCreate(LoginRequiredMixin, CreateView):
         form = super().get_form(form_class)
         request_stock_instance = StockInstance.objects.get(
             id=self.kwargs['pk'])
-        print(request_stock_instance)
         form.instance.stock_instance = request_stock_instance
+
+        if self.request.GET.get('food'):
+            food = Food.objects.get(
+                id=self.request.GET.get('food')
+            )
+            form.initial['food'] = food
+            # form.fields['food'].widget = forms.HiddenInput()
+            # form.initial['food_display'] = str(food)
         return form
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['instance'] = self.kwargs['pk']
+        return context
 
-# class StockFoodForm(forms.ModelForm):
-#     class Meta:
-#         model = StockFood
-#         fields = ['stock_instance', 'food', 'quantity', 'expiry_date']
-#         widgets = {
-#             'food': forms.TextInput(attrs={'disabled': 'disabled'}),
-#             'stock_instance': forms.TextInput(attrs={'disabled': 'disabled'}),
-#         }
-#         labels = {
-#             'food': 'Food',  # optional: no label
-#             'stock_instance': 'Stock Room',
-#         }
-#         help_texts = {
-#             'food': '',
-#             'stock_instance': '',
-#             'expiry_date': '',
-#         }
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         if self.instance:
-#             self.fields['food'].initial = str(self.instance.food)
-#             self.fields['stock_instance'].initial = str(
-#                 self.instance.stock_instance)
-#
 
 class StockFoodUpdate(LoginRequiredMixin, UpdateView):
     """generic-edit view to update a StockFood instance using forms"""
     model = StockFood
-    # form_class = StockFoodForm
-    fields = ['stock_instance', 'food', 'quantity', 'expiry_date']
+    form_class = StockFoodForm
 
     def get_object(self, queryset=None):
         """Overiding get_object method to prevent unauthorized access"""
@@ -179,11 +175,22 @@ class StockFoodUpdate(LoginRequiredMixin, UpdateView):
         return StockFood_obj
 
     def get_form(self, form_class=None):
+        """Overiding get_form to modify the forms fields"""
         form = super().get_form(form_class)
-        form.fields['stock_instance'].widget = forms.HiddenInput()
-        form.fields['food'].widget = forms.HiddenInput()
-        form.fields['expiry_date'].help_text = ""
+        form.initial['food_display'] = str(self.get_object().food)
+        if self.request.GET.get('food'):
+            food = Food.objects.get(
+                id=self.request.GET.get('food')
+            )
+            form.initial['food'] = food
+            form.initial['food_display'] = str(food)
         return form
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        object = self.get_object()
+        context['instance'] = object.stock_instance.id
+        return context
 
 
 class StockFoodDelete(LoginRequiredMixin, DeleteView):
@@ -213,12 +220,19 @@ class FoodListView(generic.ListView):
         """Overiding queryset for search result"""
         query = self.request.GET.get('q')
         if query:
+            print(query)
             object_list = Food.objects.filter(
                 Q(name__icontains=query) |
                 Q(category__category_type__icontains=query)
             ).distinct()
             return object_list
         return Food.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # context['instance'] = self.kwargs['pk']
+        context['next'] = self.request.GET.get('next')
+        return context
 
 
 class FoodDetailView(generic.DetailView):
@@ -234,13 +248,10 @@ class FoodCreate(LoginRequiredMixin, CreateView):
     def get_form(self, form_class=None):
         """Overiding get_form to modify the forms fields"""
         form = super().get_form(form_class)
-        # set user to the logged in user instance
         # form.fields['user'].initial = self.request.user
-        # Prevent user from selecting other user
-        # form.fields['user'].disabled = True
-        # form.fields['user'].widget = forms.HiddenInput()
         form.fields['category'].help_text = None
-        # form.fields['shelf_life'].help_text = None
+        form.fields['category'].widget = forms.SelectMultiple(
+            attrs={'class': 'form-select form-control'})
         return form
 
 
@@ -306,11 +317,24 @@ class RecipeDetailView(generic.DetailView):
         return context
 
 
+class RecipeForm(forms.ModelForm):
+
+    class Meta:
+        model = Recipe
+        fields = ['user', 'name', 'ingredients', 'category',
+                  'portion_size', 'portion_quantity', 'instructions']
+        widgets = {
+            'ingredients': forms.SelectMultiple(attrs={'class': 'form-select form-control'}),
+            'category': forms.SelectMultiple(attrs={'class': 'form-select form-control'}),
+        }
+
+
 class RecipeCreate(LoginRequiredMixin, generic.CreateView):
     """generic-edit view to create a Recipe instance using forms"""
     model = Recipe
-    fields = ['user', 'name', 'ingredients', 'category',
-              'portion_size', 'portion_quantity', 'instructions']
+    # fields = ['user', 'name', 'ingredients', 'category',
+    #           'portion_size', 'portion_quantity', 'instructions']
+    form_class = RecipeForm
 
     def get_form(self, form_class=None):
         """Overiding get_form to modify form fields"""

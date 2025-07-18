@@ -8,7 +8,7 @@
 
 <section id="food-detail" class="detail">
 
-  <aside id="header-info">
+  <aside class="header-info">
   <h1>{{ food.name }}</h1>
     <span id="open-info" onclick=showInfo(true) class="material-symbols-outlined">
     info_i
@@ -17,13 +17,13 @@
   <p>Categories: {{ food.display_category }}</p>
   <p>Shelf life: {{ food.shelf_life }}</p>
 
-  <dialog id="info">
-    <div id="info-wrapper">
-      <span id="close-recipe" onclick=showInfo(false) class="material-symbols-outlined">
+  <dialog class="info">
+    <div class="info-wrapper">
+      <span class="close-recipe" onclick=showInfo(false) class="material-symbols-outlined">
       close
       </span>
 {% if food.user == request.user %}
-      <nav id="owner-links">
+      <nav class="owner-links">
         <a href="{% url 'food-update' food.id %}">edit  
           <span id="edit-icon" class="material-symbols-outlined">
           arrow_selector_tool
