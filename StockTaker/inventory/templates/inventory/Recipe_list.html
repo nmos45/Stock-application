@@ -8,7 +8,7 @@
 
     <form id="search-form" autocomplete="off" action = "" method ='get'>
 
-    <input class="search" name='q' type='text' placeholder='Search...'>
+  <input class="search" name='q' type='text' placeholder='Search...' hx-get="" hx-trigger="keyup changed delay:500ms" hx-target="#recipe-list" >
 
     <span class="material-symbols-outlined">
     search
@@ -16,9 +16,17 @@
 
     </form>
 
-    <ul id="recipe-list">
+    <ul id="recipe-list" hx-swap-oob="true">
     {% for recipe in recipe_list %}
-    <li class="recipe-container"><a href="{{ recipe.get_absolute_url }}">{{ recipe.name }}</a></li>
+
+      <li class="recipe-container">
+          <!-- <aside class="header-info"> -->
+          <a href="{{ recipe.get_absolute_url }}">
+            <!-- </aside> -->
+          <h1>{{ recipe.name }}</h1>
+            <p>Ingredients: {{ recipe.display_ingredients }}</p>
+          </a>
+      </li>
     {% endfor %}
     </ul>
 

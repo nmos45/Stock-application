@@ -1,13 +1,11 @@
 {% extends 'base.html' %}
 
-
-
 {% block content %}
 <section class="detail">
 
 <aside id="recipe-heading">
   <h1 id="recipe-name">{{ recipe.name }}</h1>
-  <span id="open-info" onclick=showInfo(true) class="material-symbols-outlined">
+  <span class="open-info" class="material-symbols-outlined">
   info_i
   </span>
 </aside>
@@ -20,9 +18,9 @@
 
 <p><i>Ingredients: {{ recipe.display_ingredients }}</i></p>
 
-<dialog id="info">
-  <div id="info-wrapper">
-    <span id="close-recipe" onclick=showInfo(false) class="material-symbols-outlined">
+<dialog class="info">
+  <div class="info-wrapper">
+    <span class="close-recipe"  class="material-symbols-outlined">
     close
     </span>
     <p>Portion size: {{ recipe.portion_quantity }} {{ recipe.portion_size }}</p>
