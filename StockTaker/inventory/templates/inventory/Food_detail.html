@@ -1,15 +1,45 @@
 {% extends 'base.html' %}
 
+
+
+
+
 {% block content %}
 
-<h1>{{ food.name }}</h1>
+<section id="food-detail" class="detail">
 
-<p>Categories: {{ food.display_category }}</p>
-<p>Shelf life: {{ food.shelf_life }}</p>
+  <aside class="header-info">
+  <h1>{{ food.name }}</h1>
+    <span id="open-info" onclick=showInfo(true) class="material-symbols-outlined">
+    info_i
+    </span>
+  </aside>
+  <p>Categories: {{ food.display_category }}</p>
+  <p>Shelf life: {{ food.shelf_life }}</p>
 
+  <dialog class="info">
+    <div class="info-wrapper">
+      <span class="close-recipe" onclick=showInfo(false) class="material-symbols-outlined">
+      close
+      </span>
 {% if food.user == request.user %}
-  <a href="{% url 'food-update' food.id %}">Update {{ food }}</a>
-  <a href="{% url 'food-delete' food.id %}">Delete {{ food }}</a>
+      <nav class="owner-links">
+        <a href="{% url 'food-update' food.id %}">edit  
+          <span id="edit-icon" class="material-symbols-outlined">
+          arrow_selector_tool
+          </span>
+        </a>
+
+        <a href="{% url 'food-delete' food.id %}">delete 
+          <span id="delete-icon" class="material-symbols-outlined">
+          delete
+          </span>
+        </a>
+      </nav>
+    </div>
+  </dialog>
 {% endif %}
+
+</section>
 
 {% endblock %}

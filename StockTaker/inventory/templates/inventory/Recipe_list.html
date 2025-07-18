@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+ <section id="recipes"> 
+
+  <h1>Recipes</h1>
+
+
+    <form id="search-form" autocomplete="off" action = "" method ='get'>
+
+  <input class="search" name='q' type='text' placeholder='Search...' hx-get="" hx-trigger="keyup changed delay:500ms" hx-target="#recipe-list" >
+
+    <span class="material-symbols-outlined">
+    search
+    </span>
+
+    </form>
+
+    <ul id="recipe-list" hx-swap-oob="true">
+    {% for recipe in recipe_list %}
+
+      <li class="recipe-container">
+          <!-- <aside class="header-info"> -->
+          <a href="{{ recipe.get_absolute_url }}">
+            <!-- </aside> -->
+          <h1>{{ recipe.name }}</h1>
+            <p>Ingredients: {{ recipe.display_ingredients }}</p>
+          </a>
+      </li>
+    {% endfor %}
+    </ul>
+
+  <a class="add-link" href="{% url 'recipe-create' %}" >Add recipe <span class="material-symbols-outlined">add</span></a>
+
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}"><span class="material-symbols-outlined">
+arrow_left_alt
+</span></a>
+        {% else %}
+
+    <a href=""><span class="material-symbols-outlined">
+    arrow_left_alt
+    </span></a>
+        {% endif %}
+
+        <span class="current">{{ page_obj.number }}</span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}"><span class="material-symbols-outlined">
+arrow_right_alt
+</span></a>
+        {% else %}
+
+          <a href=""><span class="material-symbols-outlined">
+arrow_right_alt
+</span></a>
+        {% endif %}
+    </span>
+</section>
+
+{% endblock %}

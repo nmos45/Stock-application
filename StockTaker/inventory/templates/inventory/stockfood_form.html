@@ -2,15 +2,37 @@
 
 {% block content %}
 
-<form action='' method='post'>
-  {% csrf_token %}
+  <form class="crud" id="Stockfood-form" action='' method="post">
+      {% csrf_token %}
+      
+      <ul>
 
-  <table>
-    {{ form.as_table }}
-</table>
+        <li id="food-field-wrapper">
+          {{ form.food_display.label_tag }} 
+          {{ form.food }}  {# hidden input with food ID #}
 
-  <input type='submit' value='Submit'/>
-  
-</form>
+
+          {% for error in form.food.errors %}
+            <li> {{ error }}</li>
+          {% endfor %}
+        </li>
+
+         <a  href="/inventory/foods?next={{ request.path }}">See all</a>
+        <li>
+          {{ form.quantity.label_tag }} {{ form.quantity }}
+          {% for error in form.quantity.errors %}
+            <li> {{ error }}</li>
+          {% endfor %}
+        </li>
+
+        <li>
+          {{ form.expiry_date.label_tag }} {{ form.expiry_date }}
+          {% for error in form.food_display.errors %}
+            <li> {{ error }}</li>
+          {% endfor %}
+        </li>
+
+      <input type='submit' value='Submit'/>
+      </ul>
 
 {% endblock %}

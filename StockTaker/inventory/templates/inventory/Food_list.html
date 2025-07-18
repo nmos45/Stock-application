@@ -1,23 +1,101 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<section id="foods">
 
-<form action = {% url 'all-foods' %} method ='get'>
-  <input name='q' type='text' placeholder='Search...'>
-</form>
+  <h1>foods</h1>
 
-{% if food_list %}
-<ul>
-  {% for item in food_list %}
-  <li><a href='{{ item.get_absolute_url }}'>{{ item.name }}</a></li>
-  {% endfor %}
-</ul>
+  <form id="search-form" autocomplete="off" action="" method="get">
+    <input class="search" name="q" type="text" placeholder="Search..."
+           hx-get=""
+           hx-trigger="keyup changed delay:500ms"
+           hx-target="#foods-list">
+    <span class="material-symbols-outlined">search</span>
+  </form>
 
-{% else %}
-<p>No results.</p>
+  {% if food_list %}
+    <ul id="foods-list" class="foods" hx-swap-oob="true">
+      {% for food in food_list %}
+        <li>
+          <section id="stockfood-detail">
+            <article class="dialog-container detail-dialog">
+              <aside class="header-info">
+                <h1>{{ food.name }}</h1>
 
-{% endif %}
+                {% if food.user == request.user %}
+                  <span class="open-dialog open-info material-symbols-outlined">info_i</span>
+                {% endif %}
 
-<a href="{% url 'food-create' %}" >Add food</a>
+                {% if next %}
+                <a id="stockfood-return" href="{{ next }}?food={{ food.id }}"><span class="material-symbols-outlined">
+                    add
+                    </span></a>
+                {% endif %}
 
+              </aside>
+
+              <ul class="food-ul">
+                <li>Categories: {{ food.display_category }}</li>
+                <li>Shelf life: {{ food.shelf_life }}</li>
+              </ul>
+
+              {% if food.user == request.user %}
+                <dialog class="dialog info">
+                  <div class="dialog-wrapper">
+                    <span class="close-dialog material-symbols-outlined">close</span>
+                    <ul>
+                      <li>
+                        <a href="{% url 'food-update' food.id %}">
+                          edit <span id="edit-icon" class="material-symbols-outlined">arrow_selector_tool</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="{% url 'food-delete' food.id %}">
+                          delete <span id="delete-icon" class="material-symbols-outlined">delete</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </dialog>
+              {% endif %}
+            </article>
+          </section>
+        </li>
+      {% endfor %}
+    </ul>
+
+    <!-- Moved inside food_list check -->
+    <a class="add-link" href="{% url 'food-create' %}">
+      Add food <span class="material-symbols-outlined">add</span>
+    </a>
+
+    <span class="step-links">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">
+          <span class="material-symbols-outlined">arrow_left_alt</span>
+        </a>
+      {% else %}
+        <a href="">
+          <span class="material-symbols-outlined">arrow_left_alt</span>
+        </a>
+      {% endif %}
+
+      <span class="current">{{ page_obj.number }}</span>
+
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">
+          <span class="material-symbols-outlined">arrow_right_alt</span>
+        </a>
+      {% else %}
+        <a href="">
+          <span class="material-symbols-outlined">arrow_right_alt</span>
+        </a>
+      {% endif %}
+    </span>
+  {% else %}
+    <ul id="foods-list" class="foods" hx-swap-oob="true"></ul>
+    <p>No results.</p>
+  {% endif %}
+
+</section>
 {% endblock %}

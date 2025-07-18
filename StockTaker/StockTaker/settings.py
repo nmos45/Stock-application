@@ -26,7 +26,10 @@ SECRET_KEY = 'django-insecure-xbt0%s(f%6$85ku8g(+-650eb+wva(no99$0r$o$aqc6@(e09e
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '0.0.0.0',
+    '192.168.1.4',
+]
 
 
 # Application definition
@@ -80,9 +83,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'django_proj',
-        'USER':'root',
+        'USER': 'root',
         'PASSWORD': config('DB_PASSWORD'),
-        'HOST':'127.0.0.1',
+        'HOST': '127.0.0.1',
         'PORT': '3306',
         'OPTIONS': {
                 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
@@ -144,7 +147,7 @@ EMAIL_HOST_USER = config('EMAIL')
 EMAIL_HOST_PASSWORD = config('APP_PASSWORD')
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER 
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # googleoauth credentials
 GOOGLE_OAUTH2_CLIENT_ID = config("GOOGLE_OAUTH2_CLIENT_ID")
@@ -152,6 +155,6 @@ GOOGLE_OAUTH2_CLIENT_SECRET = config("GOOGLE_OAUTH2_CLIENT_SECRET")
 GOOGLE_OAUTH2_PROJECT_ID = config("GOOGLE_OAUTH2_PROJECT_ID")
 
 
-SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/' 
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI ="http://localhost:8000/users/google-login/callback/"
+SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = "http://localhost:8000/users/google-login/callback/"
