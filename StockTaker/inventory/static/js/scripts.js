@@ -36,36 +36,44 @@ function dialogLogic() {
     const dialog = container.querySelector(".dialog");
     const openDialog = container.querySelector(".open-dialog");
     const closeDialog = container.querySelector(".close-dialog");
-    openDialog.addEventListener("click", () => {
-      if (!dialog.open) {
-        // dialog.showModal();
-        dialog.show();
-      }
-    })
-    if (closeDialog) {
+    
+    if (openDialog && dialog) {
+      openDialog.addEventListener("click", () => {
+        if (!dialog.open) {
+          // dialog.showModal();
+          dialog.show();
+        }
+      });
+    }
+    
+    if (closeDialog && dialog) {
       closeDialog.addEventListener("click", () => {
         if (dialog.open) {
           dialog.close();
         }
-      })
+      });
     }
 
-    dialog.addEventListener("click", (e) => {
-      const infoWrapper = dialog.querySelector(".dialog-wrapper");
-      console.log("click event triggered");
-      if (!infoWrapper.contains(e.target)) {
-        dialog.close();
-      }
-    })
+    if (dialog) {
+      dialog.addEventListener("click", (e) => {
+        const infoWrapper = dialog.querySelector(".dialog-wrapper");
+        console.log("click event triggered");
+        if (infoWrapper && !infoWrapper.contains(e.target)) {
+          dialog.close();
+        }
+      });
+    }
   })
 
   const dialogHeader = document.querySelector("#header-dialog");
-  dialogHeader.addEventListener("click", (e) => {
-    const infoWrapper = dialogHeader.querySelector("#info-wrapper");
-    if (!infoWrapper.contains(e.target)) {
-      dialogHeader.close();
-    }
-  })
+  if (dialogHeader) {
+    dialogHeader.addEventListener("click", (e) => {
+      const infoWrapper = dialogHeader.querySelector("#info-wrapper");
+      if (infoWrapper && !infoWrapper.contains(e.target)) {
+        dialogHeader.close();
+      }
+    });
+  }
 }
 
 
@@ -80,6 +88,12 @@ document.addEventListener("scroll", () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+
+  // Disable autocomplete on all form inputs except tom-select
+  const formInputs = document.querySelectorAll('.content form input:not(.ts-input)');
+  formInputs.forEach(input => {
+    input.setAttribute('autocomplete', 'off');
+  });
 
   const formSelects = document.querySelectorAll(".form-select");
   formSelects.forEach(select => {
@@ -99,10 +113,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const innerList = list.querySelector(".nested-ul");
       if (getComputedStyle(innerList).opacity === "1") {
         innerList.style.opacity = "0";
-        innerList.style.pointerEvents = "auto";
+        innerList.style.pointerEvents = "none";
       } else {
         innerList.style.opacity = "1";
-        innerList.style.pointerEvents = "none"
+        innerList.style.pointerEvents = "auto";
       }
     })
   });
@@ -139,9 +153,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const openFilter = document.querySelector("#open-filters");
   const innerList = document.querySelector("#inner-list");
 
-  openFilter.addEventListener("click", (e) => {
-    innerList.classList.toggle("visible");
-  });
+  if (openFilter && innerList) {
+    openFilter.addEventListener("click", (e) => {
+      innerList.classList.toggle("visible");
+    });
+  }
 });
 
 

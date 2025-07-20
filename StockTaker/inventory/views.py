@@ -36,6 +36,7 @@ class StockInstanceDetailView(LoginRequiredMixin, generic.DetailView):
         food_type = self.request.GET.get('q')
         filter = self.request.GET.get('filter')
         if food_type:
+            print(f"food type is {food_type}")
             id = Q(stock_instance=self.kwargs['pk'])
             name_category = Q(food__name__icontains=food_type) | Q(
                 food__category__category_type__icontains=food_type)
@@ -70,7 +71,7 @@ class StockInstanceCreate(LoginRequiredMixin, CreateView):
         """Overiding get_form to initialise form valuer"""
         form = super().get_form(form_class)
         form.fields['user'].initial = self.request.user
-        form.fields['user'].disabled = True
+        form.fields['user'].widget = forms.HiddenInput()
         return form
 
 
@@ -240,18 +241,27 @@ class FoodDetailView(generic.DetailView):
     model = Food
 
 
+class FoodForm(forms.ModelForm):
+
+    class Meta:
+        model = Food
+        fields = ['user', 'name', 'category', 'shelf_life']
+        widgets = {
+            'user': forms.HiddenInput(),
+            'category': forms.SelectMultiple(attrs={'class': 'form-select form-control'}),
+        }
+
+
 class FoodCreate(LoginRequiredMixin, CreateView):
     """generic-edit view to create a food instance using forms"""
     model = Food
-    fields = ['name', 'category', 'shelf_life']
+    form_class = FoodForm
 
     def get_form(self, form_class=None):
         """Overiding get_form to modify the forms fields"""
         form = super().get_form(form_class)
-        # form.fields['user'].initial = self.request.user
+        form.fields['user'].initial = self.request.user
         form.fields['category'].help_text = None
-        form.fields['category'].widget = forms.SelectMultiple(
-            attrs={'class': 'form-select form-control'})
         return form
 
 
@@ -326,14 +336,13 @@ class RecipeForm(forms.ModelForm):
         widgets = {
             'ingredients': forms.SelectMultiple(attrs={'class': 'form-select form-control'}),
             'category': forms.SelectMultiple(attrs={'class': 'form-select form-control'}),
+            'portion_size': forms.Select(attrs={'class': 'form-select form-control'}),
         }
 
 
 class RecipeCreate(LoginRequiredMixin, generic.CreateView):
     """generic-edit view to create a Recipe instance using forms"""
     model = Recipe
-    # fields = ['user', 'name', 'ingredients', 'category',
-    #           'portion_size', 'portion_quantity', 'instructions']
     form_class = RecipeForm
 
     def get_form(self, form_class=None):

@@ -23,7 +23,7 @@
                 <h1>{{ food.name }}</h1>
 
                 {% if food.user == request.user %}
-                  <span class="open-dialog open-info material-symbols-outlined">info_i</span>
+                  <span id = "food-open-info"class="open-dialog open-info  material-symbols-outlined">info_i</span>
                 {% endif %}
 
                 {% if next %}
@@ -45,14 +45,10 @@
                     <span class="close-dialog material-symbols-outlined">close</span>
                     <ul>
                       <li>
-                        <a href="{% url 'food-update' food.id %}">
-                          edit <span id="edit-icon" class="material-symbols-outlined">arrow_selector_tool</span>
-                        </a>
+                        <a href="{% url 'food-update' food.id %}">edit</a>
                       </li>
                       <li>
-                        <a href="{% url 'food-delete' food.id %}">
-                          delete <span id="delete-icon" class="material-symbols-outlined">delete</span>
-                        </a>
+                        <a href="{% url 'food-delete' food.id %}">delete</a>
                       </li>
                     </ul>
                   </div>
