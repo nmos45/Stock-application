@@ -20,6 +20,7 @@ class Food(models.Model):
     shelf_life = TimeFrameField(
         help_text='Shelf life is optional , e.g. 4 weeks')
     verified = BooleanField(null=True)
+    image = CharField(max_length=400, blank=True, null=True)
 
     def __str__(self):
         """String representation of a food object"""

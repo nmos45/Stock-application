@@ -36,7 +36,7 @@ function dialogLogic() {
     const dialog = container.querySelector(".dialog");
     const openDialog = container.querySelector(".open-dialog");
     const closeDialog = container.querySelector(".close-dialog");
-    
+
     if (openDialog && dialog) {
       openDialog.addEventListener("click", () => {
         if (!dialog.open) {
@@ -45,7 +45,7 @@ function dialogLogic() {
         }
       });
     }
-    
+
     if (closeDialog && dialog) {
       closeDialog.addEventListener("click", () => {
         if (dialog.open) {
@@ -146,6 +146,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (toTop) {
       toTop.classList.toggle("active", window.pageYOffset > 100);
     }
+
+    const foodContainers = document.querySelectorAll(".dialog-container");
+    foodContainers.forEach(container => {
+      let imageUrl = container.dataset.imgUrl;
+      if (imageUrl) {
+        container.style.backgroundImage = `url(${imageUrl})`;
+      }
+    });
   });
 
 
@@ -158,6 +166,16 @@ document.addEventListener("DOMContentLoaded", () => {
       innerList.classList.toggle("visible");
     });
   }
+
+  // food images
+  const foodContainers = document.querySelectorAll(".dialog-container");
+  foodContainers.forEach(container => {
+    let imageUrl = container.dataset.imgUrl;
+    if (imageUrl) {
+      container.style.backgroundImage = `url(${imageUrl})`;
+    }
+  });
+
 });
 
 
