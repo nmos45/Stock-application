@@ -244,6 +244,11 @@ main ul {
   padding: 0;
 }
 
+/* images */
+#foods-list .dialog-container {
+  background-repeat: no-repeat;
+  background-size: cover;
+}
 
 #Instances-section {
   width: 100%;
@@ -269,91 +274,38 @@ main ul {
   background-color: var(--hover-color);
 }
 
-#Instances-section {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  padding: 2em 0;
-  position: relative;
-}
-
-#Instances-section h1 {
-  text-align: center;
-  font-size: 2.5rem;
-  color: #333;
-  margin-bottom: 1em;
-  font-weight: 300;
-}
-
 #Instance-image {
-  display: none;
-}
-
-/* Create inventory link styling */
-#Instances-section .hidden {
-  display: block;
-  text-align: center;
-  margin-top: 3em;
-  padding: 16px 32px;
-  background: linear-gradient(135deg, var(--hover-color), #16a085);
-  color: white;
-  text-decoration: none;
-  border-radius: 12px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 16px rgba(29, 141, 132, 0.3);
-  max-width: 300px;
+  background-image: url("https://images.unsplash.com/photo-1514237487632-b60bc844a47d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+  background-repeat: no-repeat;
+  background-size: cover;
   margin-left: auto;
-  margin-right: auto;
-}
-
-#Instances-section .hidden:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(29, 141, 132, 0.4);
-  background: linear-gradient(135deg, #16a085, var(--hover-color));
-}
-
-/* Empty state styling */
-#Instances-section p.hidden {
-  text-align: center;
-  font-size: 1.2rem;
-  color: #666;
-  margin: 3em 0;
-  font-style: italic;
+  justify-self: flex-end;
+  width: 50%;
+  padding: 16em 2em;
 }
 
 #Instances-container {
-  margin-top: 3em;
-  margin-bottom: 3em;
+  margin-top: 5em;
   display: grid;
-  padding: 0 2em;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 32px;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
+  margin-right: 2em;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
 }
 
 .Inventory-Instance {
+  /* border: .5px solid black; */
+  z-index: 3;
   position: relative;
-  padding: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 6em 4em;
+  background-color: #F7F7F7;
+  background-color: #f2f8f9;
+  background-color: white;
+  border-radius: .5em;
+  box-shadow: 3px -3px 8px .1px var(--hover-color);
+  /* box-shadow: 0 0 5px var(--hover-color); */
+  /* border: 1px solid black; */
   overflow: hidden;
-  transition: all 0.4s ease;
-  min-height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-}
-
-.Inventory-Instance:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 16px 48px rgba(29, 141, 132, 0.2);
-  border-color: rgba(29, 141, 132, 0.3);
+  box-sizing: content-box;
 }
 
 .Inventory-Instance a {
@@ -363,34 +315,42 @@ main ul {
   display: flex;
   align-items: center;
   justify-content: center;
-  text-decoration: none;
-  color: #333;
-  font-size: 1.2rem;
-  font-weight: 600;
-  padding: 2em;
-  text-align: center;
-  transition: all 0.3s ease;
+}
+
+.right-arrow {
+  z-index: 3;
+  position: absolute;
+  color: black;
+  top: 2em;
+  right: 2em;
+}
+
+.Inventory-Instance:before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: -6px;
+  right: -6px;
+  background: #00838d;
+  background-color: var(--hover-color);
+  height: 32px;
+  width: 32px;
+  border-radius: 32px;
+  transform: scale(1);
+  transform-origin: 50% 50%;
+  transition: transform 0.25s ease-out;
+}
+
+.Inventory-Instance:hover:before {
+  transform: scale(22);
 }
 
 .Inventory-Instance:hover a {
-  color: var(--hover-color);
-  transform: scale(1.05);
-}
-
-
-.right-arrow {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  color: rgba(29, 141, 132, 0.6);
-  font-size: 24px;
-  transition: all 0.3s ease;
-  z-index: 5;
+  color: white;
 }
 
 .Inventory-Instance:hover .right-arrow {
-  color: var(--hover-color);
-  transform: translateX(4px);
+  color: white;
 }
 
 #stockfood-detail {
@@ -2047,20 +2007,27 @@ footer {
   /* Instance page */
   #Instances-section {
     padding: 1em;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     min-height: 100vh;
   }
 
   #Instances-section h1 {
+    text-align: center;
     font-size: 2rem;
+    color: #333;
     margin-bottom: 1.5em;
+    font-weight: 300;
   }
 
   #Instances-container {
     padding: 0 1em;
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 24px;
     margin-top: 2em;
     margin-bottom: 2em;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   #Instance-image {
@@ -2071,11 +2038,33 @@ footer {
     margin-bottom: 2em;
   }
 
-  #Instances-section ul~a {
-    margin-left: 1.5em;
+  #Instances-section .hidden {
+    display: block;
+    text-align: center;
+    margin: 2em auto;
+    padding: 16px 32px;
+    background: linear-gradient(135deg, var(--hover-color), #16a085);
     color: white;
-    background-color: var(--hover-color);
-    border: none;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(29, 141, 132, 0.3);
+    max-width: 280px;
+  }
+
+  #Instances-section .hidden:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(29, 141, 132, 0.4);
+    background: linear-gradient(135deg, #16a085, var(--hover-color));
+  }
+
+  #Instances-section p.hidden {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #666;
+    margin: 2em 0;
+    font-style: italic;
   }
 
 
@@ -2084,13 +2073,52 @@ footer {
   }
 
   .Inventory-Instance {
-    min-height: 150px;
-    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    min-height: 160px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s ease;
+  }
+
+  .Inventory-Instance:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 36px rgba(29, 141, 132, 0.2);
+    border-color: rgba(29, 141, 132, 0.3);
+  }
+
+  .Inventory-Instance:before {
+    display: none;
   }
 
   .Inventory-Instance a {
     font-size: 1.1rem;
     padding: 1.5em;
+    color: #333;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .Inventory-Instance:hover a {
+    color: var(--hover-color);
+    transform: scale(1.05);
+  }
+
+  .right-arrow {
+    top: 16px;
+    right: 16px;
+    color: rgba(29, 141, 132, 0.6);
+    font-size: 20px;
+  }
+
+  .Inventory-Instance:hover .right-arrow {
+    color: var(--hover-color);
+    transform: translateX(2px);
   }
 
   /* stockfood-page */

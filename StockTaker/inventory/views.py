@@ -11,6 +11,8 @@ from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.utils import timezone
+from decouple import config
+import requests
 
 
 class StockInstanceListView(LoginRequiredMixin, generic.ListView):
@@ -215,7 +217,7 @@ class StockFoodDelete(LoginRequiredMixin, DeleteView):
 class FoodListView(generic.ListView):
     """class-based list view for Food objects"""
     model = Food
-    paginate_by = 6
+    paginate_by = 12
 
     def get_queryset(self):
         """Overiding queryset for search result"""
@@ -264,6 +266,28 @@ class FoodCreate(LoginRequiredMixin, CreateView):
         form.fields['category'].help_text = None
         return form
 
+    def form_valid(self, form):
+        """Overiding form_valid to save food image url"""
+        form_response = super().form_valid(form)
+        obj = form.instance
+        food = obj.name
+        headers = {
+            'Authorization': config('UNSPLASH_API_KEY')
+        }
+        params = {
+            'query': food,
+            'per_page': 1,
+        }
+        response = requests.get(
+            'https://api.unsplash.com/search/photos', headers=headers, params=params)
+        if response.status_code == 200:
+            data = response.json()
+            url = data['results'][0]['urls']['raw']
+            if url:
+                obj.image = url
+                obj.save()
+        return form_response
+
 
 class FoodUpdate(LoginRequiredMixin, generic.UpdateView):
     """generic-edit view to update a Food instance using forms"""
@@ -283,6 +307,28 @@ class FoodUpdate(LoginRequiredMixin, generic.UpdateView):
         form = super().get_form(form_class)
         form.fields['user'].disabled = True
         return form
+
+    def form_valid(self, form):
+        """Overiding form_valid to save food image url"""
+        form_response = super().form_valid(form)
+        obj = form.instance
+        food = obj.name
+        headers = {
+            'Authorization': 'Client-ID DV_wK_AsntKhoszARoxfujWnAN6ABcgsspgCEBlqgI0'
+        }
+        params = {
+            'query': food,
+            'per_page': 1,
+        }
+        response = requests.get(
+            'https://api.unsplash.com/search/photos', headers=headers, params=params)
+        if response.status_code == 200:
+            data = response.json()
+            url = data['results'][0]['urls']['raw']
+            if url:
+                obj.image = url
+                obj.save()
+        return form_response
 
 
 class FoodDelete(LoginRequiredMixin, generic.DeleteView):
