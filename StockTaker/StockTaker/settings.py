@@ -30,6 +30,7 @@ ALLOWED_HOSTS = [
     '0.0.0.0',
     config('IP'),
     '127.0.0.1',
+    'localhost',
 ]
 
 

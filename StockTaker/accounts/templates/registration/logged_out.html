@@ -1,6 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <p>Logged out!</p>
-  <a href="{% url 'login'%}">Click here to login again.</a>
+  <div class="crud login">
+    <ul>
+      <li>
+        <h2>Successfully Logged Out</h2>
+        <p>You have been successfully logged out of your account.</p>
+      </li>
+      <li>
+        <a href="{% url 'login' %}" id="login-button">Login Again</a>
+      </li>
+    </ul>
+  </div>
 {% endblock %}

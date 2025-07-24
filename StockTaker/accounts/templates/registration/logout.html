@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <form class="crud login" method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <ul>
+      <li>
+        <h2>Confirm Logout</h2>
+        <p>Are you sure you want to log out?</p>
+      </li>
+      <li>
+        <input id="login-button" type="submit" value="Logout">
+      </li>
+      <li>
+        <a href="{% url 'inventory:home' %}">Cancel</a>
+      </li>
+    </ul>
+  </form>
+{% endblock %}
