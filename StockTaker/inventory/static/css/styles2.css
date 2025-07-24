@@ -321,8 +321,8 @@ main ul {
   z-index: 3;
   position: absolute;
   color: black;
-  top: 2em;
-  right: 2em;
+  top: 0;
+  right: 0;
 }
 
 .Inventory-Instance:before {
@@ -628,6 +628,28 @@ input[type="checkbox"]:checked::before {
 
 #stockfood-list li {
   margin-bottom: 2em;
+}
+
+.food-ul,
+.food-header {
+  color: black;
+}
+
+.dialog-container {
+  position: relative;
+}
+
+.dialog-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.3);
+  z-index: 1;
+}
+
+.dialog-container>* {
+  position: relative;
+  z-index: 2;
 }
 
 .food-ul>li,
