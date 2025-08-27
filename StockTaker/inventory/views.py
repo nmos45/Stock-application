@@ -1,18 +1,29 @@
 from django import forms
 from django.shortcuts import render, redirect
-from django.views import generic
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from .models import StockInstance, StockFood, Food, Recipe
+from django.views import generic, View
+from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
+from django.views.generic import TemplateView
+from .models import StockInstance, StockFood, Food, Recipe, Category
+from .fields import string_to_days
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.urls import reverse, reverse_lazy
-from django.db.models import Q
-from django.db.models import Prefetch
-from django.http import HttpResponse
+from django.db.models import Q, Count, F
+from .forms import StockFoodForm, RecipeForm, FoodForm, RecipePromptForm
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
-from django.utils import timezone
 from decouple import config
+from django.utils import timezone
+from datetime import datetime, timedelta
+from django.utils.safestring import mark_safe
+from .services.api.llm import call_llm_api
+from .services.api.images import call_image_api
+import asyncio
+
+from django.http import HttpResponseRedirect
+import json
 import requests
+import redis
+import uuid
 
 
 class StockInstanceListView(LoginRequiredMixin, generic.ListView):
@@ -36,9 +47,9 @@ class StockInstanceDetailView(LoginRequiredMixin, generic.DetailView):
 
         # filtering foods
         food_type = self.request.GET.get('q')
-        filter = self.request.GET.get('filter')
+        expired = self.request.GET.get('expired')
+        in_date = self.request.GET.get('in_date')
         if food_type:
-            print(f"food type is {food_type}")
             id = Q(stock_instance=self.kwargs['pk'])
             name_category = Q(food__name__icontains=food_type) | Q(
                 food__category__category_type__icontains=food_type)
@@ -46,10 +57,12 @@ class StockInstanceDetailView(LoginRequiredMixin, generic.DetailView):
                 Q(id & name_category)
             ).distinct()
             foods = filtered_foods
-        if filter:
+        if expired:
             foods = foods.filter(expiry_date__lt=timezone.now())
+        if in_date:
+            foods = foods.filter(expiry_date__gt=timezone.now())
         # paginate
-        paginator = Paginator(foods, 8)
+        paginator = Paginator(foods, 9)
         page_number = self.request.GET.get("page")
         page_obj = paginator.get_page(page_number)
         context["page_obj"] = page_obj
@@ -62,6 +75,13 @@ class StockInstanceDetailView(LoginRequiredMixin, generic.DetailView):
             raise PermissionDenied(
                 "You are not authorized to access this inventory")
         return stockinstance_obj
+
+    def get_form(self, form_class=None):
+        """Overiding get_form to initialise form valuer"""
+        form = super().get_form(form_class)
+        form.fields['user'].initial = self.request.user
+        form.fields['user'].widget = forms.HiddenInput()
+        return form
 
 
 class StockInstanceCreate(LoginRequiredMixin, CreateView):
@@ -118,21 +138,13 @@ class StockFoodDetail(LoginRequiredMixin, generic.DetailView):
         return StockFood_obj
 
 
-class StockFoodForm(forms.ModelForm):
-    food_display = forms.CharField(label="Food", disabled=True, required=False)
-
-    class Meta:
-        model = StockFood
-        fields = ['food', 'quantity', 'expiry_date']
-        widgets = {
-            'food': forms.Select(attrs={'class': 'form-select form-control'}),
-        }
-
-
 class StockFoodCreate(LoginRequiredMixin, CreateView):
     """generic-edit view to create a stockfood instance using forms"""
     model = StockFood
     form_class = StockFoodForm
+
+    def get_success_url(self):
+        return reverse_lazy('stockInstance-detail', kwargs={'pk': self.kwargs['pk']})
 
     def get_object(self, queryset=None):
         """Overiding get_object method to prevent unauthorized access"""
@@ -154,8 +166,10 @@ class StockFoodCreate(LoginRequiredMixin, CreateView):
                 id=self.request.GET.get('food')
             )
             form.initial['food'] = food
-            # form.fields['food'].widget = forms.HiddenInput()
-            # form.initial['food_display'] = str(food)
+            shelf_life_days = string_to_days(food.shelf_life)
+            shelf_life_timedelta = timedelta(days=shelf_life_days)
+            form.initial['expiry_date'] = str(
+                datetime.now() + shelf_life_timedelta)
         return form
 
     def get_context_data(self, **kwargs):
@@ -222,18 +236,19 @@ class FoodListView(generic.ListView):
     def get_queryset(self):
         """Overiding queryset for search result"""
         query = self.request.GET.get('q')
+        filter_verify = self.request.GET.get('verified')
+        object_list = Food.objects.all()
         if query:
-            print(query)
-            object_list = Food.objects.filter(
+            object_list = object_list.filter(
                 Q(name__icontains=query) |
                 Q(category__category_type__icontains=query)
             ).distinct()
-            return object_list
-        return Food.objects.all()
+        if filter_verify:
+            object_list = object_list.filter(verified__exact=True)
+        return object_list
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # context['instance'] = self.kwargs['pk']
         context['next'] = self.request.GET.get('next')
         return context
 
@@ -241,17 +256,6 @@ class FoodListView(generic.ListView):
 class FoodDetailView(generic.DetailView):
     """class-based detail view for specific Food instance"""
     model = Food
-
-
-class FoodForm(forms.ModelForm):
-
-    class Meta:
-        model = Food
-        fields = ['user', 'name', 'category', 'shelf_life']
-        widgets = {
-            'user': forms.HiddenInput(),
-            'category': forms.SelectMultiple(attrs={'class': 'form-select form-control'}),
-        }
 
 
 class FoodCreate(LoginRequiredMixin, CreateView):
@@ -262,7 +266,7 @@ class FoodCreate(LoginRequiredMixin, CreateView):
     def get_form(self, form_class=None):
         """Overiding get_form to modify the forms fields"""
         form = super().get_form(form_class)
-        form.fields['user'].initial = self.request.user
+        # form.fields['user'].initial = self.request.user
         form.fields['category'].help_text = None
         return form
 
@@ -271,28 +275,17 @@ class FoodCreate(LoginRequiredMixin, CreateView):
         form_response = super().form_valid(form)
         obj = form.instance
         food = obj.name
-        headers = {
-            'Authorization': config('UNSPLASH_API_KEY')
-        }
-        params = {
-            'query': food,
-            'per_page': 1,
-        }
-        response = requests.get(
-            'https://api.unsplash.com/search/photos', headers=headers, params=params)
-        if response.status_code == 200:
-            data = response.json()
-            url = data['results'][0]['urls']['raw']
-            if url:
-                obj.image = url
-                obj.save()
+        url = call_image_api(food)
+        if url:
+            obj.image = url
+            obj.save()
         return form_response
 
 
 class FoodUpdate(LoginRequiredMixin, generic.UpdateView):
     """generic-edit view to update a Food instance using forms"""
     model = Food
-    fields = ['user', 'name', 'category', 'shelf_life']
+    form_class = FoodForm
 
     def get_object(self, queryset=None):
         """Overide get_object to verify logged in user created Food"""
@@ -305,7 +298,6 @@ class FoodUpdate(LoginRequiredMixin, generic.UpdateView):
     def get_form(self, form_class=None):
         """Overiding get_form to modify the forms fields"""
         form = super().get_form(form_class)
-        form.fields['user'].disabled = True
         return form
 
     def form_valid(self, form):
@@ -348,17 +340,35 @@ class FoodDelete(LoginRequiredMixin, generic.DeleteView):
 class RecipeListView(generic.ListView):
     """class-based List view for recpipes"""
     model = Recipe
-    paginate_by = 6
+    paginate_by = 9
 
     def get_queryset(self):
         recipe_filter = self.request.GET.get("q")
+        stock_instance_filter = self.request.GET.get("stock_instance_id")
+        recipes = Recipe.objects.all()
         if recipe_filter:
             filter_query = Q(name__icontains=recipe_filter) | Q(
                 category__category_type__icontains=recipe_filter)
-            recipe_filter = Recipe.objects.filter(filter_query).distinct()
-            print(recipe_filter)
-            return recipe_filter
-        return Recipe.objects.all()
+            recipes = recipes.filter(filter_query).distinct()
+        if stock_instance_filter:
+            food_ids = StockFood.objects.filter(
+                stock_instance_id=int(stock_instance_filter)).values('food')
+            recipes = recipes.annotate(
+                total_ingredients=Count('ingredients', distinct=True),
+                matched_ingredients=Count(
+                    'ingredients',
+                    filter=Q(ingredients__in=food_ids),
+                    distinct=True
+                )
+            ).filter(total_ingredients=F('matched_ingredients'))
+        return recipes
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        stock_instance_id = self.request.GET.get("stock_instance")
+        if stock_instance_id:
+            context['stock_instance'] = stock_instance_id
+        return context
 
 
 class RecipeDetailView(generic.DetailView):
@@ -373,23 +383,50 @@ class RecipeDetailView(generic.DetailView):
         return context
 
 
-class RecipeForm(forms.ModelForm):
-
-    class Meta:
-        model = Recipe
-        fields = ['user', 'name', 'ingredients', 'category',
-                  'portion_size', 'portion_quantity', 'instructions']
-        widgets = {
-            'ingredients': forms.SelectMultiple(attrs={'class': 'form-select form-control'}),
-            'category': forms.SelectMultiple(attrs={'class': 'form-select form-control'}),
-            'portion_size': forms.Select(attrs={'class': 'form-select form-control'}),
-        }
-
-
 class RecipeCreate(LoginRequiredMixin, generic.CreateView):
     """generic-edit view to create a Recipe instance using forms"""
     model = Recipe
     form_class = RecipeForm
+
+    def get_initial(self):
+        initial = super().get_initial()
+        recipe_chat_id = self.request.GET.get("conversation_id")
+        if recipe_chat_id:
+            generated_recipe = self.request.session[f"recipe_create:{
+                recipe_chat_id}"]
+            if generated_recipe:
+                generated_recipe = json.loads(generated_recipe)
+                ingredients = []
+                for ingredient in generated_recipe['ingredients']:
+                    ingredient_matches = Food.objects.filter(
+                        name=ingredient)
+                    # returns first or null
+                    verified_ingredient = ingredient_matches.filter(
+                        verified=True).first()
+                    if verified_ingredient:
+                        ingredients.append(verified_ingredient)
+                    elif ingredient_matches:
+                        ingredients.append(ingredient_matches[0])
+                    # skip creating ingredient for now
+                    # may be in diff feature
+
+                categories = Category.objects.filter(
+                    category_type__in=generated_recipe['categories'])
+
+                if ingredients:
+                    initial['ingredients'] = ingredients
+                if categories:
+                    initial['category'] = categories
+                if generated_recipe['name']:
+                    initial['name'] = generated_recipe['name']
+                # below fields are validated through schema by llm
+                if generated_recipe['portion_size']:
+                    initial['portion_size'] = generated_recipe['portion_size']
+                if generated_recipe['portion_quantity']:
+                    initial['portion_quantity'] = generated_recipe['portion_quantity']
+                if generated_recipe['instructions']:
+                    initial['instructions'] = generated_recipe['instructions']
+        return initial
 
     def get_form(self, form_class=None):
         """Overiding get_form to modify form fields"""
@@ -400,15 +437,26 @@ class RecipeCreate(LoginRequiredMixin, generic.CreateView):
         form.fields['portion_size'].help_text = None
         form.fields['ingredients'].help_text = None
         form.fields['instructions'].help_text = None
-
+        form.fields['image'].widget = forms.HiddenInput()
         return form
+
+    def form_valid(self, form):
+        """Overiding form_valid to save recipe image url"""
+        form_response = super().form_valid(form)
+        obj = form.instance
+        food = obj.name
+        url = call_image_api(food)
+        if url:
+            obj.image = url
+            obj.save()
+        return form_response
 
 
 class RecipeUpdate(LoginRequiredMixin, generic.UpdateView):
     """generic-edit view to update a recipe instance using forms"""
     model = Recipe
     fields = ['user', 'name', 'ingredients', 'category',
-              'portion_size', 'portion_quantity', 'instructions']
+              'portion_size', 'portion_quantity', 'instructions', 'image']
 
     def get_object(self, queryset=None):
         """overide get_object to verify logged in user created Recipe"""
@@ -427,8 +475,20 @@ class RecipeUpdate(LoginRequiredMixin, generic.UpdateView):
         form.fields['portion_size'].help_text = None
         form.fields['ingredients'].help_text = None
         form.fields['instructions'].help_text = None
+        form.fields['image'].widget = forms.HiddenInput()
 
         return form
+
+    def form_valid(self, form):
+        """Overiding form_valid to save recipe image url"""
+        form_response = super().form_valid(form)
+        obj = form.instance
+        food = obj.name
+        url = call_image_api(food)
+        if url:
+            obj.image = url
+            obj.save()
+        return form_response
 
 
 class RecipeDelete(LoginRequiredMixin, generic.DeleteView):
@@ -443,3 +503,13 @@ class RecipeDelete(LoginRequiredMixin, generic.DeleteView):
             raise PermissionDenied(
                 "You are not authorized to delete this recipe")
         return recipe_obj
+
+
+class RecipeGenerateView(LoginRequiredMixin, View):
+
+    def post(self, request, *args, **kwargs):
+        conversation_id = request.session.get('conversation_id', None)
+        if conversation_id is None:
+            conversation_id = str(uuid.uuid4())
+            request.session['conversation_id'] = conversation_id
+        return HttpResponseRedirect(reverse('chat_page', args=[conversation_id]))

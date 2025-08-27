@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section id="recipe-chat-container">
+  
+  <article id="messages-container">
+    {% if previous_chat %}
+
+      {% for message in previous_chat %}
+          {% for part in message.parts %}
+            {% if message.role == 'user' %}
+              <div class="prompt-message">{{ part.text }}</div>
+            {% else %}
+              <div class="response-message">{{ part.text|safe }}</div>
+          {% endif %}
+         {% endfor %}
+      {% endfor %}
+
+    {% endif %}
+  </article>
+
+
+  {% if foods %}
+    <div id="prompt-container">
+      <ul id="filter-list" >
+          <li>
+          <span id="open-filters" class="material-symbols-outlined">
+          tune 
+          </span>       
+          <ul id="inner-list" class="prompt-options">
+              <li>
+                <label for="id_inventory">Inventory:</label>
+                <select id="recipe_inventory" name="inventory_select" >
+                </select>
+              </li>
+              <li>
+                <label for="id_food">Foods:</label> 
+                <select id="recipe_ingredients" name="food" required multiple>
+                </select>
+              </li>
+              <li id="add-recipe-container" onclick="generateRecipe()" id="recipe-generate-button" >
+              <span id="add-recipe-icon" class="material-symbols-outlined">
+                bookmark
+                </span>
+                Use recipe
+              </li>
+            </ul>
+          </li>
+      </ul>
+      <textarea id="prompt-box" autocorrect="on">
+      </textarea>
+      <span onclick="sendPrompt()" id="generate-button" class="material-symbols-outlined">
+      arrow_upward_alt
+      </span>
+    </div>
+    {% else %}
+      <h3>Please add Foods To your inventory</h3>
+    {% endif %}
+</section>
+
+<script>
+  // dynamic styling for scrolling 
+  const navbar = document.querySelector(".navbar-list");
+  navbar.style.position = "fixed";
+  // recipe context to create TomSelects
+  const recipeContext = JSON.parse('{{ recipe_context|escapejs }}');
+  console.log(recipeContext)
+
+  const conversationId = "{{ conversation_id }}";
+  const webSocket = new WebSocket(`/ws/chat/${conversationId}`);
+ 
+  const messageContainer = document.querySelector("#messages-container")
+  const promptBox = document.querySelector("#prompt-box");
+  const responseBox = document.querySelector("#response-box");
+
+  function sendPrompt() {
+    const promptMessage = promptBox.value;
+    if (!promptMessage.trim()) return;
+    
+    const ingredientsSelect = document.querySelector("#recipe_ingredients");
+    // create shallow copy as live dom object
+    console.log(Array.from(ingredientsSelect.selectedOptions));
+    let ingredients = Array.from(ingredientsSelect.selectedOptions).map(opt => opt.value);
+    if (ingredients.length === 0) {
+      console.log("no ingredients selected");
+      ingredients = recipeContext.foods;
+      console.log(ingredients);
+    }
+
+    const msg = {
+      prompt: promptMessage,
+      ingredients,
+      createRecipe: false,
+    };
+    console.log(msg);
+
+    // add message before response
+    const chatMessage = document.createElement("p");
+    chatMessage.innerHTML = promptMessage;
+    chatMessage.classList.add("prompt-message");
+    messageContainer.appendChild(chatMessage);
+    
+    // clear promptBox
+    promptBox.value = "";
+    // scroll to end of messages
+    scrollToBottom();
+    // create a response element now
+    let responseMessage = document.createElement("p");
+    responseMessage.classList.add("response-message");
+    messageContainer.appendChild(responseMessage);
+    
+    webSocket.send(JSON.stringify(msg));
+  }
+
+  function generateRecipe() {
+    const msg = {
+      createRecipe: true
+    }
+    webSocket.send(JSON.stringify(msg));
+  }
+
+
+  webSocket.onmessage = (event) => {
+    // expecting JSON
+    serverMessage = JSON.parse(event.data);
+    let responseMessage = messageContainer.lastChild;
+
+    if (serverMessage.action === "redirect") {
+      window.location = serverMessage.url;
+    } else if (serverMessage.action == "html-response"){
+      console.log(serverMessage.text);
+        responseMessage.innerHTML = serverMessage.html;
+    } else {
+      // message was created when sending prompt
+      responseMessage.innerHTML += serverMessage.text;
+    }
+  }
+
+  webSocket.onclose = () => {
+    console.log("WebSocket connection closed");
+  }
+
+  webSocket.onerror = (err) => {
+    console.error("WebSocket error:", err);
+  }
+
+  function adjustChatSpacing() {
+    const prompt = document.getElementById("prompt-container");
+    const messages = document.getElementById("messages-container");
+    messages.style.paddingBottom = `${prompt.offsetHeight + 20}px`; // +20 for spacing
+  }
+
+  window.addEventListener("resize", adjustChatSpacing);
+  window.addEventListener("load", adjustChatSpacing);
+
+  function scrollToBottom() {
+    const container = document.getElementById("messages-container");
+    container.scrollTop = container.scrollHeight;
+  }
+</script>
+{% endblock %}

@@ -107,7 +107,9 @@ class StockFood(models.Model):
     @staticmethod
     def update_food_verification(food_instance):
         """method to update the verification status of a food instance specified in StockFood instance"""
-        count = StockFood.objects.filter(food=food_instance).count()
+        # count based on stock instances
+        count = StockFood.objects.filter(food=food_instance).values(
+            'stock_instance').distinct().count()
         if count >= 10 and not food_instance.verified:
             food_instance.verified = True
             food_instance.save(update_fields=['verified'])
@@ -171,6 +173,7 @@ class Recipe(models.Model):
     instructions = TextField(
         help_text='Enter a clear concise method for making this recipe.')
     created_at = DateTimeField(auto_now_add=True)
+    image = CharField(max_length=400, blank=True, null=True)
 
     def __str__(self):
         """String representation of a Recipe object"""

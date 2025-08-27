@@ -6,26 +6,58 @@
   <h1>Recipes</h1>
 
 
-    <form id="search-form" autocomplete="off" action = "" method ='get'>
+<section id="recipe-filters" class="filters">
 
-  <input class="search" name='q' type='text' placeholder='Search...' hx-get="" hx-trigger="keyup changed delay:500ms" hx-target="#recipe-list" >
+  <form id="filter-form" autocomplete="off"
+    hx-get=""
+    hx-trigger="change, keyup delay:500ms"
+    hx-target="#recipe-list">
 
-    <span class="material-symbols-outlined">
-    search
-    </span>
+    <div id="search-form">
+      <input class="new-search" name='q' type='text' placeholder='Search...' >
+      <span class="material-symbols-outlined">
+      search
+      </span>
+    </div>
 
-    </form>
+    <ul id="filter-list" class="recipe-filter-list">
+      <li>
+      <span id="open-filters" class="material-symbols-outlined">
+      tune 
+      </span>       
+      <ul id="inner-list">
+          {% if stock_instance %}
+            <li>
+              <label class="checkbox-label">
+                <input type="checkbox" name="stock_instance_id" value={{ stock_instance }} id="filter-input" > 
+                My stockFoods 
+              </label>
+            </li>
+          <input type="hidden" name="stock_instance" value={{ stock_instance }} >
+          {% endif %}
+        </ul>
+      </li>
+    </ul>
+
+  </form>
+</section>
 
     <ul id="recipe-list" hx-swap-oob="true">
     {% for recipe in recipe_list %}
-
-      <li class="recipe-container">
-          <!-- <aside class="header-info"> -->
-          <a href="{{ recipe.get_absolute_url }}">
-            <!-- </aside> -->
-          <h1>{{ recipe.name }}</h1>
-            <p>Ingredients: {{ recipe.display_ingredients }}</p>
-          </a>
+      <li>
+        <section id="recipe-detail">
+          <article class="dialog-container recipe-container">
+            <img src="{{ recipe.image }}" 
+                 loading="lazy"
+                 alt="{{ recipe.name }}"
+                 class="food-image">
+            
+            <a href="{{ recipe.get_absolute_url }}">
+              <h1>{{ recipe.name }}</h1>
+              <p>Ingredients: {{ recipe.display_ingredients }}</p>
+            </a>
+          </article>
+        </section>
       </li>
     {% endfor %}
     </ul>

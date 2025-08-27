@@ -19,11 +19,13 @@ from django.urls import path, include
 from django.views.generic import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
+from sesame.views import LoginView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('users/',include('accounts.urls')),
-    path('inventory/',include('inventory.urls')),
-    path('',RedirectView.as_view(url='inventory/',permanent=True)),
-   ]   + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    path('users/', include('accounts.urls')),
+    path('inventory/', include('inventory.urls')),
+    path('', RedirectView.as_view(url='inventory/', permanent=True)),
+    path('sesame/login/', LoginView.as_view(), name='sesame-login'),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

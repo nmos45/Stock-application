@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 
-{% block  user_embedded %}
-  <ul>
-  </ul>
+
+{% block  recipe_link %}
+  <li><a href= "{% url 'all-recipes' %}?stock_instance={{ stockinstance.id }}">Recipes</a></li>
 {% endblock %}
 
 
@@ -19,35 +19,44 @@
   </aside>
   {% if stockinstance.stockfood_set.all %}
 
-  <section class="filters">
-    <form id="search-form" autocomplete="off" action = "" method ='get'>
-      <input class="search" name='q' type='text' placeholder='Search...' hx-get="/inventory/{{ stockinstance.id }}" hx-trigger="keyup changed delay:500ms" hx-target="#stockfoods-list">
+  <section id="instance-filters" class="filters">
+    <form id="filter-form" autocomplete="off"
+      hx-get=""
+      hx-trigger="change, keyup delay:500ms"
+      hx-target="#stockfoods-list">
 
-    <span class="material-symbols-outlined">
-    search
-    </span>
+        <div id="search-form">
+          <input class="new-search" name='q' type='text' placeholder='Search...' >
+          <span class="material-symbols-outlined">
+          search
+          </span>
+        </div>
+        
+
+        <ul id="filter-list" class="instance-filter-list">
+            <li>
+            <span id="open-filters" class="material-symbols-outlined">
+            tune 
+            </span>       
+            <ul id="inner-list">
+                <li>
+                  <label class="checkbox-label">
+                      <input type="checkbox" name="expired" id="filter-input"> 
+                  Expired 
+                  </label>
+                </li>
+                <li>
+                  <label class="checkbox-label">
+                      <input type="checkbox" name="in_date"> 
+                  In date 
+                  </label>
+                </li>
+              </ul>
+            </li>
+        </ul>
 
     </form>
-    
-
-    <ul id="filter-list">
-      <li>
-      <span id="open-filters" class="material-symbols-outlined">
-      tune 
-      </span>       
-      <ul id="inner-list">
-          <li>
-            <label class="checkbox-label">
-                <input type="checkbox" name="filter" id="filter-input" hx-get="/inventory/{{ stockinstance.id }}" hx-trigger="change delay:500ms" hx-target="#stockfoods-list"> 
-            Expired 
-            </label>
-
-          </li>
-        </ul>
-      </li>
-    </ul>
-
-</section>
+  </section>
 
   <ul id="stockfoods-list" hx-swap-oob="true">
 
@@ -62,6 +71,11 @@
               <span class="open-dialog open-info material-symbols-outlined">
               info_i
               </span>
+              {% if stockfood.food.verified %}
+                <span class="verified-icon material-symbols-outlined">
+                verified_user
+                </span>
+              {% endif %}
             </aside>
 
               <ul>
@@ -74,7 +88,7 @@
             </ul>
 
 
-            <dialog class="dialog">
+            <dialog class="dialog info">
               <div class="dialog-wrapper">
               <span  class="close-dialog material-symbols-outlined">
               close
@@ -98,24 +112,17 @@
   <p>{{ stockinstance }} is currently empty!</p>
   {% endif %}
 
-  <dialog id="header-dialog">
-    <div id="info-wrapper" >
-      <span id="close-recipe" onclick=showHeaderInfo(false) class="material-symbols-outlined">
-      close
-      </span>
-      <nav id="owner-links">
-        <a href = "{% url 'stockInstance-update' stockinstance.id %}">edit
-          <span id="edit-icon" class="material-symbols-outlined">
-          arrow_selector_tool
-          </span>
-        </a>
-
-        <a href = "{% url 'stockInstance-delete' stockinstance.id %}">delete 
-          <span id="delete-icon" class="material-symbols-outlined">
-          delete
-          </span>
-        </a>
-      </nav>
+  <dialog id="header-dialog" class="dialog info">
+    <div class="dialog-wrapper">
+      <span id="close-recipe" onclick=showHeaderInfo(false) class="close-dialog material-symbols-outlined">close</span>
+      <ul>
+        <li>
+          <a href="{% url 'stockInstance-update' stockinstance.id %}">edit</a>
+        </li>
+        <li>
+          <a href="{% url 'stockInstance-delete' stockinstance.id %}">delete</a>
+        </li>
+      </ul>
     </div>
   </dialog>
   <a class="add-link" href='{% url 'stockFood-create' stockinstance.id %}'>Add Food <span class="material-symbols-outlined">add</span></a>

@@ -1,4 +1,4 @@
-from django.urls import path, re_path
+from django.urls import path, re_path, include
 from . import views
 from django.conf.urls.static import static
 from django.conf import settings
@@ -22,8 +22,6 @@ urlpatterns = [
     re_path(r'^stockfood/(?P<pk>\d+)/delete/$',
             views.StockFoodDelete.as_view(), name='stockFood-delete'),
     re_path(r'^foods/$', views.FoodListView.as_view(), name='all-foods'),
-    # re_path('foods',
-    #         views.FoodListView.as_view(), name='all-foods'),
     re_path(r'^foods/(?P<pk>\d+)/$',
             views.FoodDetailView.as_view(), name='food-detail'),
     path('foods/create', views.FoodCreate.as_view(), name='food-create'),
@@ -39,4 +37,7 @@ urlpatterns = [
             views.RecipeUpdate.as_view(), name='recipe-update'),
     re_path(r'^recipe/(?P<pk>\d+)/delete/$',
             views.RecipeDelete.as_view(), name='recipe-delete'),
+    path('recipe/generate/', views.RecipeGenerateView.as_view(),
+         name='recipe-generate'),
+    path('chat', include('chat.urls'))
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

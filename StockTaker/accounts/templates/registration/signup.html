@@ -1,18 +1,23 @@
 {% extends 'base.html' %}
 
+{% block sidebar %}
+  {{ sidebar.super }}
+  <li>
+    <a href="{% url 'login' %}">login</a>
+  </li>
+{% endblock %}
+
 {% block content %}
 
-<h1>Signup</h1>
-
 <form action='' method='post'>
-
+  
     {% csrf_token %}
-
-    {{ form.as_p }}
-    <button type="submit">Sign up</button>
-    <input type='submit' class='btn btn-default btn-lg'  value='Sign up'/>
-
+    <ul>
+      {{ form.as_ul }}
+      
     <a href="{% url 'login' %}">Already have account?</a>
+    <button id="login-button" type="submit">Sign up</button>
+    </ul>
 
 </form>
 

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- <section id = "user-detail-container"> -->
+<section class="crud" id="user-detail">
+  <ul>
+      {% if user.profile %}
+        <li id="user-profile-container">
+          <img src="{{ user.profile.image }}" 
+              loading="lazy"
+              class="profile-image">
+        <a href="{% url 'accounts:profile-update' user.profile.id %}" id="edit-profile-link">edit</a>
+      </li>
+      {% endif %}
+    <h1>{{ user.get_full_name }}</h1>
+    <li>Username: {{ user.username }}</li>
+    <li>Email: {{ user.email }}</li>
+    
+    <a href="{% url 'accounts:user-update' user.id %}" id="user-edit-link">Change settings</a>
+  </ul>
+</section>
+
+{% endblock %}

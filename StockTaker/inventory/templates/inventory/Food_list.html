@@ -5,20 +5,47 @@
 
   <h1>foods</h1>
 
-  <form id="search-form" autocomplete="off" action="" method="get">
-    <input class="search" name="q" type="text" placeholder="Search..."
+<section class="filters">
+  <form id="filter-form" autocomplete="off"
            hx-get=""
-           hx-trigger="keyup changed delay:500ms"
+           hx-trigger="change, keyup delay:500ms"
            hx-target="#foods-list">
+    <div id="search-form">
+    <input class="new-search" name="q" type="text" placeholder="Search...">
     <span class="material-symbols-outlined">search</span>
+    </div>
+
+    <ul id="filter-list" class="food-filter-list">
+      <li>
+      <span id="open-filters" class="material-symbols-outlined">
+      tune 
+      </span>       
+      <ul id="inner-list">
+          <li>
+            <label class="checkbox-label">
+                <input type="checkbox" name="verified" id="filter-input"> 
+            Verified 
+            </label>
+          </li>
+        </ul>
+      </li>
+    </ul>
+
   </form>
+
+</section>
 
   {% if food_list %}
     <ul id="foods-list" class="foods" hx-swap-oob="true">
       {% for food in food_list %}
         <li>
           <section id="stockfood-detail">
-            <article class="dialog-container detail-dialog" data-img-url={{ food.image }}>
+            <article class="dialog-container detail-dialog">
+              <img src="{{ food.image }}" 
+                   loading="lazy"
+                   alt="{{ food.name }}"
+                   class="food-image">
+              
               <aside class="food-header header-info">
                 <h1>{{ food.name }}</h1>
 
@@ -32,6 +59,11 @@
                     </span></a>
                 {% endif %}
 
+                {% if food.verified %}
+                  <span class="verified-icon material-symbols-outlined">
+                  verified_user
+                  </span>
+                {% endif %}
               </aside>
 
               <ul class="food-ul">

@@ -5,12 +5,9 @@
 
 <aside id="recipe-heading">
   <h1 id="recipe-name">{{ recipe.name }}</h1>
-  <span class="open-info" class="material-symbols-outlined">
-  info_i
-  </span>
 </aside>
 
-<ul>
+<ul id="recipe-detail-instructions">
   {% for instruction in instruction_list %}
   <li>{{ instruction }}</li>
   {% endfor %}

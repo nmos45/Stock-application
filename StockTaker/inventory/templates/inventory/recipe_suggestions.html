@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section id="recipes"> 
+
+  {% if recipes %}
+  <h1>Recipes</h1>
+  <ul id="recipe-list">
+    {% for recipe in recipes %}
+    <li>
+      <section id="recipe-detail">
+        <article class="dialog-container recipe-container">
+
+          <img src="{{ recipe.image }}" 
+                loading="lazy"
+                alt="{{ recipe.name }}"
+                class="food-image">
+          <a href="{% url 'recipe-create' %}?recipe_id={{ recipe.recipe_number }}"><h1>{{ recipe.name }}</h1></a>
+          <p>
+            {{ recipe.ingredients|join:", " }},
+          </p>
+        </article>
+      </section>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <p>Waiting for recipes to generate</p>
+  {% endif %}
+</section>
+{% endblock %}

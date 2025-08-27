@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<form class="crud user" method="POST">
+  {% csrf_token %}
+  <ul>
+    <li id="user-profile-container">
+        <img src="{{ user.profile.image }}" 
+            loading="lazy"
+            class="profile-image">
+      <a href="{% url 'accounts:profile-update' user.profile.id %}" id="edit-profile-link">edit</a>
+    </li>
+
+    {{ form.as_ul }}
+    <button id="login-button" type="submit">Save changes</button>
+  </ul>
+</form>
+
+{% endblock %}

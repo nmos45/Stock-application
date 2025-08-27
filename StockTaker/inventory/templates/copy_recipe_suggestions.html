@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section id="recipes"> 
+
+  <h1>Recipes</h1>
+
+  <button onclick="startSSE()">generate</button>
+  <p id="recipe-list">
+  </p>
+
+  <button onclick="stopSSE()">stop generating</button>
+</section>
+
+<script>
+ let eventSource;
+ const recipeList = document.querySelector("#recipe-list");
+
+ function startSSE() {
+   eventSource = new EventSource("/recipe/stream/{{job_id}}");
+   console.log("starting");
+   eventSource.onmessage = (event) => {
+     try {
+        const recipes = JSON.parse(event.data);
+        console.log(recipes);
+        console.log(typeof recipes);
+
+        // Create HTML elements for each recipe
+        let html = ''; 
+      recipes.forEach(recipe => {
+        html += `
+                <div>
+                    <h2>${recipe.name}</h2>
+                    <p>Instructions: ${recipe.instructions}</p>
+                </div>
+            `;
+        });
+
+        // Render the new HTML
+        recipeList.innerHTML = html;
+     }
+     catch (error) {
+
+     }
+   }
+
+    eventSource.addEventListener("close", (event) => {
+      console.log("were closing");
+      eventSource.close();
+    });
+ }
+
+
+</script>
+{% endblock %}

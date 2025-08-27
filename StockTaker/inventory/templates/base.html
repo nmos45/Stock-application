@@ -16,7 +16,6 @@
   </head>
 
   <body>
-          {% block sidebar %}
       
               <input id="sidebar-checkbox" type="checkbox" />
               <label id="sidebar-icon-container" for="sidebar-checkbox">
@@ -29,46 +28,46 @@
               </label>
 
             <ul class="navbar-list">
-             
+            {% block sidebar %}
               {% if user.is_authenticated %}
 
               <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}"/>
 
-                <li id="user-li" class="dropdown-nav">User: {{ user.get_username }} 
-                  {% block user_embedded %}
-                  {% endblock %}
-                  <span id ="" class="material-symbols-outlined change-span"></span>
-                </li>
+                <a href="{% url 'accounts:user-update' user.id %}">
+                  <img src="{{ user.profile.image }}" 
+                      loading="lazy"
+                      class="profile-image">
+                </a>
 
                 <div class="pages">
                 <li><a id="home" href= "{% url 'homepage' %}">Home</a>
                 </li>
                 <li class ="embedded">
                   <p>Foods</p>
-                  <ul class="nested-ul">
+                  <span class="open-nested-sidebar dropdown-icon material-symbols-outlined change-span">keyboard_arrow_down</span>
+                  <ul id="embedded" class="nested-ul">
                     <li><a href= "{% url 'all-foods' %}">Foods</a></li>
                   </ul>
-                  <span class="open-nested-sidebar dropdown-icon material-symbols-outlined change-span">keyboard_arrow_down</span>
                 </li>
                 <li class ="embedded">
                   <p>Recipes</p>
-                  <ul class="nested-ul">
-                    <li><a href= "{% url 'all-recipes' %}">Recipes</a></li>
-                  </ul>
                   <span id ="recipe-open" class="open-nested-sidebar dropdown-icon material-symbols-outlined change-span">keyboard_arrow_down</span>
+                  <ul class="nested-ul">
+                    {% block recipe_link %}
+                      <li><a href= "{% url 'all-recipes' %}">Recipes</a></li>
+                    {% endblock %}
+                      <li onclick="GenerateRecipePost()">AI chat</li>
+                  </ul>
                 </li>
                 </div>
 
                 <li id="logout-btn" style="cursor: pointer;"><a href="{% url 'logout' %}">Logout</a></li>
-              {% else %}
-                <li><a href="{% url 'login' %}?next={{ request.path }}">Login</a></li>
               {% endif %}
-
+              {% endblock %}
             </ul>
 
 
 
-          {% endblock %}
 
         <main>
 
@@ -93,15 +92,37 @@
   <footer>
     <ul>
       <li>About us</li>
-      <li>About us</li>
-      <li>About us</li>
-      <li>About us</li>
     </ul>
 
-    <ul>
-      <li>Menu</li>  <li>Menu</li>  <li>Menu</li>  <li>Menu</li>
-    </ul>
+    <!-- <ul> -->
+    <!--   <li>Menu</li>  <li>Menu</li>  <li>Menu</li>  <li>Menu</li> -->
+    <!-- </ul> -->
     
   </footer>
 </html>
 
+<script>
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+
+  async function GenerateRecipePost() {
+    const url = ("{% url 'recipe-generate' %}");
+    try {
+      const csrfToken = getCookie('csrftoken');
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {'X-CSRFToken': csrfToken},
+        mode: 'same-origin'
+      })
+      if (response.redirected) {
+            window.location.href = response.url; 
+      }
+    }
+    catch (error) {
+      console.log(error);
+    }
+  } 
+</script>

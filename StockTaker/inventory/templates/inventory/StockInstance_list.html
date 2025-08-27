@@ -22,11 +22,11 @@
   </ul>
 
 {% else %}
-  <p class="hidden">You Currently have no inventory's</p>
+  <h1>My stockrooms</h1>
+  <p>You currently have no inventories.</p>
 {% endif %}
 
-
-  <a class="hidden" href="{% url 'stockInstance-create' %}">Create an inventory</a>
+  <a class="add-link" href="{% url 'stockInstance-create' %}">Create an inventory <span class="material-symbols-outlined">add</span></a>
 </section>
 
   <div id="Instance-image"></div>

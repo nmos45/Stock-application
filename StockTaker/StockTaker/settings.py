@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 from decouple import config
 
@@ -29,10 +29,17 @@ DEBUG = True
 ALLOWED_HOSTS = [
     '0.0.0.0',
     config('IP'),
+    config('IP')+".nip.io",
+    config('IP2')+".nip.io",
+    config('IP3'),
     '127.0.0.1',
     'localhost',
 ]
 
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "sesame.backends.ModelBackend",
+]
 
 # Application definition
 
@@ -42,13 +49,18 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'daphne',
+    'channels',
     'django.contrib.staticfiles',
     'inventory.apps.InventoryConfig',
     'accounts.apps.AccountsConfig',
+    'chat.apps.ChatConfig',
 ]
+ASGI_APPLICATION = "StockTaker.asgi.application"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -95,6 +107,22 @@ DATABASES = {
     }
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": config('REDIS_URL'),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "IGNORE_EXCEPTIONS": True,
+            "CONNECTION_POOL_KWARGS": {"max_connections": 100},
+        }
+    }
+}
+
+CACHE_TTL = 60 * 60
+DJANGO_REDIS_LOG_IGNORED_EXCEPTIONS = True  # only log memcached exceptions
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -132,12 +160,14 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = "/inventory"
+REDIRECT_URL = "/inventory"
 
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
@@ -159,4 +189,7 @@ GOOGLE_OAUTH2_PROJECT_ID = config("GOOGLE_OAUTH2_PROJECT_ID")
 
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = "http://localhost:8000/users/google-login/callback/"
+SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = "http://192.168.1.4.nip.io:8000/users/google-login/callback/"
+
+CELERY_BROKER_URL = config('CELERY_BROKER_URL')
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default=None)

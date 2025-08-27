@@ -37,17 +37,22 @@ function dialogLogic() {
     const openDialog = container.querySelector(".open-dialog");
     const closeDialog = container.querySelector(".close-dialog");
 
+
     if (openDialog && dialog) {
-      openDialog.addEventListener("click", () => {
+      openDialog.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         if (!dialog.open) {
-          // dialog.showModal();
           dialog.show();
         }
       });
     }
 
     if (closeDialog && dialog) {
-      closeDialog.addEventListener("click", () => {
+      closeDialog.addEventListener("click", (e) => {
+
+        e.preventDefault();
+        e.stopPropagation();
         if (dialog.open) {
           dialog.close();
         }
@@ -57,7 +62,6 @@ function dialogLogic() {
     if (dialog) {
       dialog.addEventListener("click", (e) => {
         const infoWrapper = dialog.querySelector(".dialog-wrapper");
-        console.log("click event triggered");
         if (infoWrapper && !infoWrapper.contains(e.target)) {
           dialog.close();
         }
@@ -106,8 +110,48 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  const recipeInventorySelect = document.querySelector("#recipe_inventory");
+  const recipeIngredientsSelect = document.querySelector("#recipe_ingredients");
+
+
+  if (recipeInventorySelect && recipeIngredientsSelect) {
+
+    const invetoryTS = new TomSelect(recipeInventorySelect, {
+      create: false,
+      options: recipeContext.inventories,
+      valueField: "id",
+      labelField: "name",
+      searchField: "name",
+      sortField: {
+        field: "text",
+        direction: "asc"
+      }
+    });
+    // tomselect generation expects key value object
+    const ingredientTS = new TomSelect(recipeIngredientsSelect, {
+      create: false,
+      options: recipeContext.foods.map(f => ({ value: f, text: f })),
+      valueField: "value",
+      labelField: "text",
+    });
+
+
+    function filterIngredients(inventoryId) {
+      const filteredInventory = recipeContext.inventories.filter(inventory => {
+        return inventory.id === parseInt(inventoryId);
+      });
+      ingredientTS.clearOptions();
+      ingredientTS.addOptions(filteredInventory[0].foods.map(f => ({ value: f, text: f })));
+      ingredientTS.refreshOptions(false);
+    }
+
+    recipeInventorySelect.addEventListener("change", (e) => {
+      filterIngredients(e.target.value);
+    });
+  }
+
+
   const embeddedLists = document.querySelectorAll(".embedded");
-  console.log(embeddedLists);
   embeddedLists.forEach(list => {
     list.addEventListener("click", () => {
       const innerList = list.querySelector(".nested-ul");
@@ -147,13 +191,6 @@ document.addEventListener("DOMContentLoaded", () => {
       toTop.classList.toggle("active", window.pageYOffset > 100);
     }
 
-    const foodContainers = document.querySelectorAll(".dialog-container");
-    foodContainers.forEach(container => {
-      let imageUrl = container.dataset.imgUrl;
-      if (imageUrl) {
-        container.style.backgroundImage = `url(${imageUrl})`;
-      }
-    });
   });
 
 
@@ -167,14 +204,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // food images
-  const foodContainers = document.querySelectorAll(".dialog-container");
-  foodContainers.forEach(container => {
-    let imageUrl = container.dataset.imgUrl;
-    if (imageUrl) {
-      container.style.backgroundImage = `url(${imageUrl})`;
-    }
-  });
 
 });
 
