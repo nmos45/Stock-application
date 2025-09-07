@@ -1,6 +1,7 @@
 # Stockify
 
 Stockify is a web-based inventory management system built using the Django framework. It enables consumers to monitor food stock and their respective expiry dates.
+[Visit here](https://django-service-338034632131.europe-west2.run.app)
 
 ## 🚀 Features
 
